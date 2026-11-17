@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{color-scheme:light}body{margin:0;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Treino Planejamento Estratégico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: coluna única de estudo (máx. 760px), abas Quiz / Resumo, cartões só onde há objeto (questão, cartão de resumo) */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --ink:#13202A; --muted:#5A6B78; --line:#D7DFE5;
+  --accent:#1E5D7A; --accent-ink:#FFFFFF; --accent-soft:#E0EDF3;
+  --good:#1D7A4E; --good-soft:#E2F3EA; --bad:#B2362E; --bad-soft:#F8E4E2;
+  --warn:#9A6514; --warn-soft:#FBF0DC; --orange:#C25E12;
+  --f-display:"Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151A; --surface:#162029; --ink:#E5ECF0; --muted:#94A4B0; --line:#26343F;
+  --accent:#72B6D6; --accent-ink:#0E151A; --accent-soft:#183140;
+  --good:#58C490; --good-soft:#15302A; --bad:#EE7D72; --bad-soft:#3A1F1D;
+  --warn:#E5B35D; --warn-soft:#33291A; --orange:#F0954E; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0E151A; --surface:#162029; --ink:#E5ECF0; --muted:#94A4B0; --line:#26343F;
+  --accent:#72B6D6; --accent-ink:#0E151A; --accent-soft:#183140;
+  --good:#58C490; --good-soft:#15302A; --bad:#EE7D72; --bad-soft:#3A1F1D;
+  --warn:#E5B35D; --warn-soft:#33291A; --orange:#F0954E; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:1.75rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.3rem;font-weight:600}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header.top{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+header.top p{color:var(--muted);max-width:60ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;padding-top:4px}
+nav.tabs a{font-family:var(--f-display);font-weight:600;text-decoration:none;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-1px}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+nav.tabs a:focus-visible,button:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;font-weight:500}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.chip{font:inherit;font-size:.88rem;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:600}
+.field{display:flex;flex-direction:column;gap:8px}
+.field > .lbl{font-weight:600;font-size:.92rem}
+.small{font-size:.85rem;color:var(--muted)}
+.count{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* Questão */
+.qhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--ink)}
+.tag.lv-f{background:var(--good-soft)} .tag.lv-m{background:var(--warn-soft)} .tag.lv-d{background:var(--bad-soft)}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.ctx{border-left:3px solid var(--line);padding:2px 0 2px 14px;color:var(--ink)}
+.ctx .eyebrow{display:block;margin-bottom:2px}
+.qtext{font-family:var(--f-display);font-size:1.15rem;font-weight:600;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:400}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-size:.85rem;flex:0 0 26px;height:26px;border-radius:6px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line)}
+.opt span:last-child{min-width:0}
+.opt:disabled{cursor:default;opacity:1}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.right .k{background:var(--good);color:var(--surface);border-color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .k{background:var(--bad);color:var(--surface);border-color:var(--bad)}
+.hint{background:var(--warn-soft);border-radius:8px;padding:10px 14px}
+.hint b{color:var(--warn)}
+.fb{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.fb.ok{background:var(--good-soft)} .fb.no{background:var(--bad-soft)}
+.fb .verdict{font-family:var(--f-display);font-weight:700}
+.fb.ok .verdict{color:var(--good)} .fb.no .verdict{color:var(--bad)}
+.fb a{color:var(--accent)}
+.kbd{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.score{font-family:var(--f-display);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:4px 12px;align-items:center}
+.bar .track{grid-column:1/-1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar .track i{display:block;height:100%}
+.bar .n{text-align:right;font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.errlist{display:flex;flex-direction:column;gap:12px}
+.err{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.err .ans{color:var(--good);font-weight:600}
+.err .yours{color:var(--bad)}
+
+/* Resumo */
+.toc{display:flex;flex-wrap:wrap;gap:6px}
+.toc a{font-size:.88rem;text-decoration:none;color:var(--ink);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.sum{scroll-margin-top:64px;display:flex;flex-direction:column;gap:12px;padding-top:8px}
+.sum ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.sum li{max-width:68ch}
+.tip{background:var(--accent-soft);border-radius:8px;padding:12px 14px}
+.tip .eyebrow{color:var(--accent);display:block;margin-bottom:2px}
+.trap{background:var(--warn-soft);border-radius:8px;padding:12px 14px}
+.trap .eyebrow{color:var(--warn);display:block;margin-bottom:2px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+.cier{display:grid;grid-template-columns:3fr 4fr 8fr;border-radius:8px;overflow:hidden;font-size:.85rem;font-weight:600}
+.cier div{padding:10px 8px;color:#fff}
+.cier small{display:block;font-weight:400;opacity:.92}
+.cier .g{background:#1D7A4E}.cier .y{background:#8A6508}.cier .o{background:#C25E12}
+.scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+hr.sep{border:0;border-top:1px solid var(--line);margin:8px 0}
+@media (max-width:480px){h1{font-size:1.45rem}.panel{padding:16px}.score{font-size:2.4rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Módulos 3 e 4 · revisão para prova</span>
+    <h1>Treino de Planejamento Estratégico</h1>
+    <p>Questões com contexto, dica opcional e explicação de cada resposta. O resumo cobre indicadores, metas, projetos, painéis de contribuição, monitoramento e escritório de estratégia.</p>
+  </header>
+  <nav class="tabs" aria-label="Seções">
+    <a href="#quiz" id="tab-quiz">Quiz</a>
+    <a href="#resumo" id="tab-resumo">Resumo e dicas</a>
+  </nav>
+
+  <main>
+    <section id="view-quiz">
+      <!-- Configuração -->
+      <div id="setup" class="panel stack">
+        <h2>Monte seu treino</h2>
+        <div class="field">
+          <span class="lbl">Banco de questões</span>
+          <div class="row" id="bank-chips"></div>
+        </div>
+        <div class="field">
+          <span class="lbl">Assuntos</span>
+          <div class="row" id="topic-chips"></div>
+        </div>
+        <div class="field">
+          <span class="lbl">Dificuldade</span>
+          <div class="row" id="level-chips"></div>
+        </div>
+        <div class="field">
+          <span class="lbl">Quantidade</span>
+          <div class="row" id="qty-chips"></div>
+        </div>
+        <div class="row" style="justify-content:space-between">
+          <span class="small"><span class="count" id="avail">0</span> questões disponíveis com esses filtros</span>
+          <div class="row">
+            <button id="btn-retry-saved" class="ghost" hidden>Refazer as que errei antes (<span id="saved-n">0</span>)</button>
+            <button id="btn-start" class="primary">Começar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Questão -->
+      <div id="play" class="stack" hidden>
+        <div class="qhead">
+          <span class="eyebrow">Questão <span class="count" id="q-pos">1</span> de <span class="count" id="q-total">1</span> · acertos <span class="count" id="q-score">0</span></span>
+          <button class="ghost" id="btn-quit">Encerrar</button>
+        </div>
+        <div class="progress"><i id="q-bar"></i></div>
+        <article class="panel stack" aria-live="polite">
+          <div class="tags" id="q-tags"></div>
+          <div class="ctx" id="q-ctx"><span class="eyebrow">Contexto</span><p id="q-ctx-text"></p></div>
+          <p class="qtext" id="q-text"></p>
+          <div class="opts" id="q-opts"></div>
+          <div class="hint" id="q-hint" hidden><b>Dica:</b> <span id="q-hint-text"></span></div>
+          <div class="fb" id="q-fb" hidden>
+            <span class="verdict" id="q-verdict"></span>
+            <p id="q-expl"></p>
+            <p class="small">Revisar no resumo: <a href="#resumo" id="q-link"></a></p>
+          </div>
+          <div class="row" style="justify-content:space-between">
+            <button id="btn-hint">Ver dica</button>
+            <button id="btn-next" class="primary" disabled>Próxima</button>
+          </div>
+          <p class="kbd">Teclado: 1–4 ou A–D responde · H mostra a dica · Enter avança</p>
+        </article>
+      </div>
+
+      <!-- Resultado -->
+      <div id="result" class="stack" hidden>
+        <div class="panel stack">
+          <span class="eyebrow">Resultado</span>
+          <div class="row" style="gap:16px;align-items:flex-end">
+            <span class="score" id="r-pct">0%</span>
+            <span class="small" id="r-raw"></span>
+          </div>
+          <p id="r-msg"></p>
+          <div class="row">
+            <button class="primary" id="btn-redo-wrong">Refazer só as erradas</button>
+            <button id="btn-new">Novo treino</button>
+          </div>
+        </div>
+        <div class="panel stack">
+          <h3>Desempenho por assunto</h3>
+          <div class="bars" id="r-bars"></div>
+        </div>
+        <div class="panel stack" id="r-errs-panel">
+          <h3>O que errou e por quê</h3>
+          <div class="errlist" id="r-errs"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-resumo" hidden>
+      <div class="stack">
+        <div class="toc" id="toc">
+          <a href="#resumo" data-go="s-ind">Indicadores</a>
+          <a href="#resumo" data-go="s-met">Metas</a>
+          <a href="#resumo" data-go="s-pro">Projetos</a>
+          <a href="#resumo" data-go="s-ali">Alinhamento e painéis</a>
+          <a href="#resumo" data-go="s-mon">Monitoramento e CIER</a>
+          <a href="#resumo" data-go="s-esc">Escritório</a>
+          <a href="#resumo" data-go="s-calc">Contas</a>
+          <a href="#resumo" data-go="s-trap">Pegadinhas</a>
+        </div>
+
+        <article class="sum" id="s-ind">
+          <span class="eyebrow">Módulo 3</span>
+          <h2>Indicadores</h2>
+          <ul>
+            <li><b>Conceito:</b> demonstração quantitativa de um aspecto da realidade. É o número que mostra se o objetivo está sendo atingido.</li>
+            <li><b>Dois papéis:</b> <b>motivar</b> (quanto atingimos?) e <b>diagnosticar</b> (como e por que atingimos?). Um bom indicador equilibra os dois.</li>
+            <li><b>Tipos:</b> <b>processo</b> mede um conjunto de atividades, foco na <b>eficiência</b> da operação. <b>Resultado</b> quantifica o atingimento, foco na <b>eficácia</b>.</li>
+            <li><b>Premissas:</b> poucos e bons · viabilidade (dados disponíveis a tempo de decidir) · simplicidade (fácil de entender, coletar e analisar) · potencial de comparação.</li>
+            <li><b>Uso:</b> objetivo estratégico → questões relevantes → indicadores → informações e análises.</li>
+            <li><b>Dados:</b> só escolha o indicador se houver fonte para <b>cada componente</b> e um responsável pela coleta.</li>
+            <li><b>Construção (5 passos):</b> 1) partir do objetivo (o que precisa acontecer para sabermos que foi atingido?) 2) identificar o melhor indicador 3) ver se outras organizações usam 4) verificar viabilidade (se não der, adaptar e criar plano de mensuração) 5) preencher a ficha.</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Bloco da ficha</th><th>Campos</th></tr></thead>
+            <tbody>
+              <tr><td>Dados gerais</td><td>Nome, identificador, área, <b>nível</b> (estratégico, tático, operacional), objetivo, finalidade, homologação, <b>tipo</b> (processo ou resultado), <b>estilo</b> (maior ou menor melhor), <b>eixo</b></td></tr>
+              <tr><td>Responsável</td><td>Quem fornece e atualiza os dados, com área, telefone e e-mail</td></tr>
+              <tr><td>Coleta</td><td>Fórmula, termos e fontes, fonte dos dados, unidade, forma de coleta, periodicidade</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tip"><span class="eyebrow">Para memorizar</span><b>Estilo = sentido da seta</b> (maior melhor / menor melhor). <b>Tipo</b> = processo ou resultado. <b>Eixo</b> = tema (ex.: Atenção à Saúde). <b>Nível</b> = estratégico, tático ou operacional.</div>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-met">
+          <span class="eyebrow">Módulo 3</span>
+          <h2>Metas</h2>
+          <ul>
+            <li><b>Meta</b> = valor-alvo de um indicador dentro de um horizonte de tempo.</li>
+            <li><b>Desejada</b>: o que a organização <i>deseja</i>. <b>Viável</b>: o que ela <i>acredita conseguir</i> com o que tem.</li>
+            <li><b>Métodos:</b> série histórica (passado da própria organização) · benchmarking (comparar com organizações semelhantes) · diretrizes (desdobramento de instâncias superiores).</li>
+            <li><b>SMART:</b> S específica · M mensurável · <b>A viável (achievable)</b> · R relevante (alinhada à estratégia) · T prazo.</li>
+            <li><b>Passos:</b> partir do objetivo e indicadores → analisar diretrizes, série e benchmarking → definir valor → definir metas parciais → avaliar a viabilidade do <b>conjunto</b> de metas.</li>
+            <li><b>Metas parciais</b> são checkpoints (ex.: abril e agosto, meta final em dezembro) para decidir antes do fim do período.</li>
+            <li><b>Responsabilidade:</b> matriz indicadores × cargos, com R marcando o responsável. Mais de uma área = responsabilidade compartilhada.</li>
+            <li><b>Desdobramento:</b> corpo diretivo (resultados globais) → áreas (contribuição de cada diretoria) → indivíduos (contribuição de cada colaborador).</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Limite de ação</th><th>Pergunta</th><th>Decisão em jogo</th></tr></thead>
+            <tbody>
+              <tr><td>Superior (passou)</td><td>Por que superamos a meta? Qual a causa?</td><td>Vamos <b>mantê-la</b>?</td></tr>
+              <tr><td>Inferior (ficou abaixo)</td><td>Por que não alcançamos? Qual a causa?</td><td>Vamos <b>eliminá-la</b>?</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tip"><span class="eyebrow">Para memorizar</span>Nos dois limites a conduta começa igual: <b>investigar a causa</b>, considerando aspectos conjunturais e estruturais. Nunca ignorar, nunca punir de cara.</div>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-pro">
+          <span class="eyebrow">Módulo 3</span>
+          <h2>Projetos estratégicos</h2>
+          <ul>
+            <li><b>Conceito:</b> esforço temporário (início, meio e fim) que existe para viabilizar as metas. Objetivo → meta → projeto.</li>
+            <li><b>Tipos:</b> <b>transformação de processos</b> (modifica o que já existe) · <b>implantação de novos processos</b> (cria algo novo) · <b>investimento pontual</b> (melhoria pontual).</li>
+            <li><b>Inventário:</b> analisar a base → ajustar o portfólio (novos, ajustar, juntar ou eliminar) → formar o conjunto → analisar viabilidade → detalhar.</li>
+            <li><b>Filtro de capacidade:</b> hierarquizar, balancear recursos, distribuir no tempo e definir por onde começar. Resultado: a carteira.</li>
+            <li><b>Critérios:</b> impacto · transversalidade · complexidade · <b>orçamento (ponto de corte e desempate)</b>.</li>
+            <li><b>AHP:</b> reduz e organiza a subjetividade, não elimina. O ranking <b>apoia</b> a decisão da alta direção, não a substitui. Projeto não priorizado continua existindo.</li>
+            <li><b>Carteira:</b> levantar existentes → analisar frente ao mapa (manter ou eliminar) → criar novos para lacunas → priorizar → formalizar (estratégicos e tático-operacionais).</li>
+            <li><b>Orçamento:</b> objetivo/meta → iniciativa (declara a transformação) → plano de ação (como fazer) → <b>ação orçamentária</b> (sustenta financeiramente).</li>
+            <li><b>Ficha do projeto:</b> responsável, atores envolvidos, ações com datas e responsáveis, início e término, objetivo do painel ao qual está atrelado.</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Categoria</th><th>Ligado a</th><th>Governança</th><th>Orçamento</th></tr></thead>
+            <tbody>
+              <tr><td>Estratégico</td><td>Mapa estratégico, maior impacto</td><td>Corporativa, com Escritório de Estratégia</td><td>Próprio, idealmente</td></tr>
+              <tr><td>Operacional</td><td>Painel de contribuição da diretoria, menor impacto</td><td>A própria área, nas reuniões de gestão</td><td>Da diretoria</td></tr>
+              <tr><td>Alta incerteza</td><td>Pode estar ligado ao mapa</td><td>Metodologia específica</td><td>Área de Inovação Corporativa, aprovado conforme evolução</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Critério</th><th>Peso</th><th>Escala 0 · 1 · 3</th></tr></thead>
+            <tbody>
+              <tr><td>Impacto (3 subcritérios)</td><td>1 cada</td><td>0 nulo · 1 marginal/indireto · 3 crítico e direto</td></tr>
+              <tr><td>Transversalidade</td><td>0,5</td><td>0 só a área executora · 1 pontual · 3 estrutural</td></tr>
+              <tr><td>Complexidade (3 subcritérios)</td><td>0,3 cada</td><td>0 depende de fornecedor ou órgão · 1 parcial · 3 própria da organização</td></tr>
+              <tr><td>Orçamento</td><td>Desempate</td><td>Ponto de corte e critério de desempate</td></tr>
+            </tbody>
+          </table></div>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-ali">
+          <span class="eyebrow">Módulo 4</span>
+          <h2>Alinhamento, BSC e painéis de contribuição</h2>
+          <ul>
+            <li><b>Por que alinhar:</b> pessoas resistem à mudança, e a <b>desinformação</b> é uma das principais causas de resistência. Alinhar o mapa combate isso.</li>
+            <li><b>Quatro etapas:</b> <b>Análise</b> (necessidades e capacidades) → <b>Escolha</b> (poucos objetivos relevantes) → <b>Desdobramento</b> (contribuição de cada área e ações) → <b>Gestão</b> (execução disciplinada).</li>
+            <li><b>BSC:</b> financeira · do cliente · interna (processos) · aprendizado e crescimento (pessoas, competências, cultura, tecnologia). Objetivos <b>habilitadores</b> tornam possíveis os de <b>resultado</b>.</li>
+            <li><b>Premissas do BSC:</b> disseminar a estratégia por todos os níveis; integrar ações alinhando objetivos estratégicos e de contribuição; mapa como instrumento de comunicação, controle e monitoramento.</li>
+            <li><b>Painel de contribuição:</b> liga objetivos das áreas aos estratégicos. É o primeiro passo entre estratégia e ações individuais.</li>
+            <li><b>Top-down:</b> parte do mapa para os painéis. <b>Bottom-up:</b> ao montar os painéis, metas inviáveis ou tímidas e projetos insuficientes levam a ajustar a estratégia. Os dois convivem.</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Elemento do painel</th><th>Pergunta que responde</th></tr></thead>
+            <tbody>
+              <tr><td>Objetivos de contribuição</td><td>De que maneira a área contribui para cada objetivo estratégico?</td></tr>
+              <tr><td>Indicadores</td><td>Como mensurar o desempenho desses objetivos?</td></tr>
+              <tr><td>Metas</td><td>Quais metas a área precisa alcançar?</td></tr>
+              <tr><td>Projetos</td><td>O que deve ser feito para alcançar as metas?</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Elemento da estratégia</th><th>Para que serve</th></tr></thead>
+            <tbody>
+              <tr><td>SWOT</td><td>Forças, fraquezas, oportunidades e ameaças</td></tr>
+              <tr><td>PEST</td><td>Fatores políticos, econômicos, sociais e tecnológicos do ambiente</td></tr>
+              <tr><td>Cadeia de valor</td><td>Atividades que criam valor</td></tr>
+              <tr><td>MVV</td><td>Missão, visão e valores</td></tr>
+              <tr><td>Mapa estratégico</td><td>Objetivos em causa e efeito, por perspectiva</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tip"><span class="eyebrow">Para memorizar</span>Etapas na ordem <b>A-E-D-G</b>: Analisa, Escolhe, Desdobra, Gerencia. Painel na ordem <b>O-I-M-P</b>: Objetivo, Indicador, Meta, Projeto.</div>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-mon">
+          <span class="eyebrow">Módulo 4</span>
+          <h2>Monitoramento, reuniões e modelo CIER</h2>
+          <ul>
+            <li><b>Estratégias:</b> pretendida (planejada) · deliberada (a parte realizada como planejado) · emergente (surge da prática) · não realizada · <b>real</b> = deliberadas + emergentes.</li>
+            <li><b>Barreiras:</b> convencer (comunicar para fora, entre áreas, de cima para baixo e de baixo para cima) e cuidar das influências: recursos, projetos existentes, estrutura de implementação, pessoas.</li>
+            <li><b>Frutos:</b> decisões melhores, execução melhor gerenciada, resposta a imprevistos. <b>Raízes:</b> disseminação da estratégia e monitoramento das informações.</li>
+            <li><b>Ritos de gestão</b> = estrutura de governança (reuniões). <b>Instrumentos de gestão</b> = sistemas, coleta, ferramentas.</li>
+            <li><b>Escalonamento:</b> resolve na RA → se não resolver, vira <b>hot issue</b> na próxima RAE → se for urgente, <b>sala de situação</b>.</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Reunião</th><th>Quando</th><th>Quem</th><th>Pergunta</th></tr></thead>
+            <tbody>
+              <tr><td>RAP · preliminar</td><td>Ao longo do mês, antes da RA</td><td>Líderes e executores; conduz o Escritório</td><td>Como estão as tarefas?</td></tr>
+              <tr><td>RA · acompanhamento</td><td>Mensal, datas fixas</td><td>Patrocinador e líder; conduz o Escritório</td><td>Estamos caminhando conforme o esperado?</td></tr>
+              <tr><td>RAE · análise da estratégia</td><td>Trimestral, oficial</td><td>Diretoria Executiva e Comitê Estratégico</td><td>Estamos indo na direção correta?</td></tr>
+              <tr><td>Sala de situação</td><td>Ad hoc, por convocação</td><td>Diretoria Executiva</td><td>Como resolver um ponto urgente?</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Aspecto</th><th>RA</th><th>RAE</th></tr></thead>
+            <tbody>
+              <tr><td>Acompanha</td><td>Evolução, escopo e orçamento das tarefas</td><td>Indicadores estratégicos e status dos projetos</td></tr>
+              <tr><td>Foco</td><td>Desvios em relação ao planejado</td><td>Visão geral dos projetos e assuntos críticos</td></tr>
+              <tr><td>Resultado</td><td>Inclui atividades e altera responsabilidades</td><td>Revisa e direciona cada projeto</td></tr>
+            </tbody>
+          </table></div>
+          <h3>CIER: some as quatro notas</h3>
+          <p>Complexidade, Integridade, Evolução e Riscos recebem nota <b>1 (melhor), 2 ou 4 (pior)</b>. O score vai de 4 a 16 e funciona como golfe: <b>quanto maior, pior</b>.</p>
+          <div>
+            <div class="cier" role="img" aria-label="Escala CIER: 4 a 6 verde, 6 a 9 amarelo, 9 a 16 laranja">
+              <div class="g">Verde<small>4 a 6 · área segura</small></div>
+              <div class="y">Amarelo<small>6 a 9 · avance com cautela</small></div>
+              <div class="o">Laranja<small>9 a 16 · questão crítica, Comitê intervém</small></div>
+            </div>
+            <div class="scale"><span>4</span><span>16</span></div>
+          </div>
+          <div class="trap"><span class="eyebrow">Atenção</span>Na Integridade, integridade <b>alta</b> recebe nota <b>1</b> (é bom). Na Complexidade, complexidade <b>alta</b> recebe <b>4</b> (é ruim). A nota sempre mede o risco, não a palavra.</div>
+          <p class="small">Briefing executivo: perfil (projeto, patrocinador, líder), KPIs com valor atual, avaliação CIER, pontos de restrição com ações corretivas e marcos críticos.</p>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-esc">
+          <span class="eyebrow">Módulo 4</span>
+          <h2>Escritório de estratégia</h2>
+          <div class="tbl"><table>
+            <thead><tr><th>Papel</th><th>O que faz</th></tr></thead>
+            <tbody>
+              <tr><td>Instigador</td><td>Avalia etapas, detecta exceções, mitiga riscos, sugere melhorias, cria controles, indicadores e templates</td></tr>
+              <tr><td>Alinhador</td><td>Consolida informações dos envolvidos, faz comitês com responsáveis e dá feedbacks</td></tr>
+              <tr><td>Comunicador</td><td>Consolida e dissemina informações aos stakeholders</td></tr>
+              <tr><td>Decisor</td><td>Participa de decisões sobre metodologias e padrões da gestão estratégica</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Serviço</th><th>Produto</th></tr></thead>
+            <tbody>
+              <tr><td>Análise dos ambientes</td><td>Relatório de diagnóstico interno e externo</td></tr>
+              <tr><td>Elaboração do mapa</td><td>Mapa estratégico</td></tr>
+              <tr><td>Indicadores e metas</td><td>Painel de gestão com indicadores e metas</td></tr>
+              <tr><td>Projetos estratégicos</td><td>Carteira de projetos prioritários</td></tr>
+              <tr><td>Painéis de contribuição</td><td>Painéis de cada área</td></tr>
+              <tr><td>Monitoramento e reporte</td><td>Produtos do escritório atualizados</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tip"><span class="eyebrow">Para memorizar</span><b>Instigador</b> = o “fiscal que provoca melhoria” (exceções, atrasos, templates). <b>Alinhador</b> = comitês e feedback. <b>Comunicador</b> = espalha a informação. <b>Decisor</b> = metodologia e padrão.</div>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-calc">
+          <span class="eyebrow">Caem na prova</span>
+          <h2>Contas que aparecem</h2>
+          <ul>
+            <li><b>Índice de queda:</b> (quedas ÷ pacientes-dia) × 100. Ex.: 3 ÷ 500 × 100 = <b>0,6%</b>.</li>
+            <li><b>Horas extras:</b> A ÷ (B + C + D). Some o denominador <b>antes</b> de dividir. Ex.: 50 ÷ (100 + 150 + 100) = 50 ÷ 350 = <b>14,3%</b>.</li>
+            <li><b>Priorização com pesos:</b> multiplique cada nota pelo peso e some. Ex.: 0,4×2 + 0,05×1 + 0,1×3 + 0,2×3 + 0,15×4 + 0,1×2 = <b>2,55</b>.</li>
+            <li><b>CIER:</b> some as quatro notas. Ex.: 2 + 4 + 4 + 4 = 14 → laranja.</li>
+          </ul>
+        </article>
+        <hr class="sep">
+
+        <article class="sum" id="s-trap">
+          <span class="eyebrow">Revisão final</span>
+          <h2>Pegadinhas mais comuns</h2>
+          <ul>
+            <li>“Quantidade elevada de indicadores” <b>não</b> é premissa. A premissa é poucos e bons.</li>
+            <li>No SMART, o A é <b>viável</b>, não “ambiciosa” nem “alinhada”. Alinhamento é o R.</li>
+            <li>Meta sem data falha no <b>T</b>. Meta com “significativamente” falha no <b>S e M</b>.</li>
+            <li>Desempate de projetos é pelo <b>orçamento</b>, não pelo impacto.</li>
+            <li>Criar processo novo = <b>implantação</b>. Mudar processo existente = <b>transformação</b>.</li>
+            <li>Problema que a RA não resolveu vai para a <b>RAE como hot issue</b>. Urgência de 24 h vai para a <b>sala de situação</b>.</li>
+            <li>“Estamos indo na direção correta?” é a <b>RAE</b> (trimestral). “Conforme o esperado?” é a <b>RA</b> (mensal).</li>
+            <li>CIER alto é <b>ruim</b>. Score 14 = laranja = Comitê intervém.</li>
+            <li>O ranking AHP <b>apoia</b> a decisão, não decide sozinho.</li>
+            <li>Alta incerteza é paga pela <b>Área de Inovação Corporativa</b>, aprovada conforme a evolução.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var TOPICS = {
+  ind:{name:"Indicadores", sec:"s-ind"},
+  met:{name:"Metas", sec:"s-met"},
+  pro:{name:"Projetos", sec:"s-pro"},
+  ali:{name:"Alinhamento e painéis", sec:"s-ali"},
+  mon:{name:"Monitoramento e CIER", sec:"s-mon"},
+  esc:{name:"Escritório", sec:"s-esc"}
+};
+var LEVELS = {f:"Fácil", m:"Médio", d:"Difícil"};
+var BANKS = {novo:"Questões novas", sim:"Simulado da aula"};
+
+/* q(id, banco, assunto, nível, contexto, pergunta, alternativas, índice correto, dica, explicação) */
+var Q = [];
+function q(id,b,t,n,c,p,o,a,h,e){Q.push({id:id,b:b,t:t,n:n,c:c,p:p,o:o,a:a,h:h,e:e});}
+
+/* ---------- Simulado da aula (30) ---------- */
+q("s01","sim","ind","f","A diretoria de uma transportadora acompanha o processo de expedição pela produtividade da equipe, medida pelo número de caminhões carregados por hora. O objetivo estratégico é reduzir o tempo de entrega.","O indicador 'caminhões carregados por hora' é classificado como:",["Indicador de resultado","Indicador de processo","Indicador de meta","Indicador de projeto"],1,"Ele mede o resultado final (tempo de entrega) ou o ritmo de uma atividade?","Caminhões por hora mede a eficiência de uma atividade (expedição), logo é indicador de processo. O indicador de resultado seria o próprio tempo de entrega.");
+q("s02","sim","ind","f","Um hospital público criou o indicador 'Taxa de infecção hospitalar' e precisa preencher a ficha, indicando se o desejado é a redução ou o aumento do valor.","Qual campo da ficha de indicador informa esse sentido de evolução em direção à meta?",["Eixo","Tipo","Estilo","Responsável"],2,"Pense em 'maior melhor' ou 'menor melhor'.","Estilo é o campo que diz a direção desejada: maior melhor ou menor melhor. Tipo é processo/resultado; eixo é o tema.");
+q("s03","sim","met","f","Uma software house definiu a meta: 'Aumentar em 20% o número de tickets resolvidos', sem definir data de conclusão.","Em uma análise SMART, a meta descrita não atende a qual critério?",["S (específica)","M (mensurável)","A (viável)","T (prazo)"],3,"O que está faltando na frase da meta?","Há número (20%) e foco claro, mas não há data. Falta o T (time-bound, prazo).");
+q("s04","sim","met","f","Uma secretaria municipal de saúde quer definir a meta de cobertura vacinal. Ela decide comparar seus números com os de municípios de porte semelhante e com as melhores práticas da região.","Qual método de definição de metas está sendo usado?",["Benchmarking","Série histórica","Diretrizes","Matriz SWOT"],0,"Comparar com outros de natureza similar.","Comparar com organizações semelhantes é benchmarking. Série histórica olha o passado da própria organização; diretrizes vêm de instâncias superiores.");
+q("s05","sim","met","f","Uma rede de academias definiu o objetivo de aumentar a retenção de alunos. A equipe concluiu que a meta desejada é 90%, mas que, com os recursos atuais, acredita ser possível atingir 85% no horizonte do planejamento.","Qual conceito representa o valor de 85%?",["Meta desejada","Meta parcial","Meta viável","Meta de contribuição"],2,"'Acredita ser possível atingir' é a palavra-chave.","Meta viável é o valor que a organização acredita conseguir atingir. 90% é a desejada.");
+q("s06","sim","met","f","Uma indústria tem a meta anual de produzir 1.000 unidades. A gestão decidiu acompanhar o avanço em abril e em agosto, com valores intermediários definidos.","Esses valores intermediários de acompanhamento são chamados de:",["Metas desejadas","Metas parciais","Metas de contribuição","Metas viáveis"],1,"São checkpoints no caminho.","Metas parciais são checkpoints intermediários que permitem decidir antes do fim do período.");
+q("s07","sim","ali","f","Uma empresa de cosméticos concluiu a etapa de escolha de poucos objetivos muito relevantes. O próximo passo é definir como cada área contribuirá para esses objetivos e quais ações serão realizadas.","Qual etapa do planejamento estratégico está sendo executada?",["Análise","Escolha","Desdobramento","Gestão"],3,"Ordem: Análise → Escolha → ? → Gestão.","Depois da Escolha vem o Desdobramento: traduzir objetivos na contribuição de cada área e em ações.");
+q("s08","sim","ali","f","Uma empresa de energia quer que cada diretoria saiba como contribui para os objetivos estratégicos da organização. Para isso, criou um instrumento que liga os objetivos das áreas aos objetivos estratégicos.","Esse instrumento é o:",["Painel de contribuição","Escritório de estratégia","Sala de situação","Briefing executivo"],0,"O nome do instrumento contém a palavra que descreve o papel de cada área.","O painel de contribuição interliga os objetivos das áreas aos objetivos estratégicos.");
+q("s09","sim","ind","m","Uma secretaria cria o indicador 'Tempo médio de atendimento na triagem'. Ele depende de três componentes: tempo de espera (sistema de fila), número de atendimentos (prontuário eletrônico) e número de profissionais (escala de plantão).","Qual afirmação sobre a construção desse indicador está correta?",["Não exige fonte de dados","Dispensa um responsável","Só pode ser construído se houver fonte para cada componente","Deve ter prazo de cinco anos"],2,"Regra prática: antes de escolher o indicador, confirme se os dados existem.","Ao escolher um indicador é preciso garantir fonte para todos os componentes e definir responsáveis pela coleta.");
+q("s10","sim","met","m","Uma escola de negócios definiu o objetivo 'Aumentar a retenção de talentos'. A retenção atual é de 90%. O conselho deseja chegar a 98%, mas a área acredita que 95% seja alcançável no horizonte do plano.","Qual conceito representa o valor de 98%?",["Meta viável","Meta desejada","Meta parcial","Meta de contribuição"],1,"Quem 'deseja' 98%?","98% é o que o conselho deseja: meta desejada. 95% seria a viável.");
+q("s11","sim","ali","m","A área de TI de uma empresa de telecomunicações monta seu Painel de Contribuição. Já definiu os objetivos de contribuição, os indicadores e as metas. Falta responder: o que deve ser feito para alcançar as metas esperadas?","Qual elemento do painel responde a essa pergunta?",["Objetivos de contribuição","Indicadores","Metas","Projetos"],3,"Ordem O-I-M-P. Qual falta?","Projetos respondem 'o que deve ser feito para alcançar as metas'.");
+q("s12","sim","mon","m","Um projeto de modernização do CRM apresenta problemas há três meses. Os responsáveis tentaram resolver na Reunião de Acompanhamento (RA) mensal, sem sucesso. Ainda não há solução definida.","Qual é o encaminhamento recomendado pelo escalonamento?",["Tratar como hot issue na próxima RAE","Manter indefinidamente na RA","Eliminar a RAE","Esperar o fim do ano"],0,"Escalonamento: RA → ? → sala de situação.","Se a RA não resolve, o problema sobe como hot issue para a próxima RAE.");
+q("s13","sim","met","m","Um indicador de produtividade fica abaixo do limite inferior de ação. A equipe precisa decidir o que fazer com a meta.","Qual é a conduta recomendada?",["Ignorar","Reduzir o prazo","Investigar a causa e decidir se a meta deve ser eliminada","Aumentar a meta"],2,"Limite inferior traz a pergunta 'vamos eliminá-la?'.","Abaixo do limite inferior: perguntar por que não alcançamos, qual a causa, e decidir se a meta deve ser eliminada.");
+q("s14","sim","pro","m","Três projetos foram avaliados na priorização. Todos empataram nos critérios de impacto e complexidade, e a organização precisa de um critério para desempate.","Qual critério deve ser usado para desempate?",["Transversalidade","Orçamento","Complexidade","Impacto"],1,"Um dos critérios é 'ponto de corte'.","Orçamento é o ponto de corte e o critério de desempate.");
+q("s15","sim","pro","m","Uma empresa de manufatura quer substituir a conferência manual de estoque por um sistema automatizado inédito na organização, que criará um novo fluxo de trabalho.","Esse projeto é classificado como:",["Transformação de processos","Investimento pontual","Projeto operacional","Implantação de novos processos"],3,"Palavras-chave: 'inédito' e 'novo fluxo'.","Criar e implantar um processo novo é implantação de novos processos. Transformação modifica um processo que já existe.");
+q("s16","sim","pro","m","Uma empresa desenvolve uma tecnologia inédita para o mercado. O resultado é incerto, o projeto depende de decisões ainda em aberto, e o orçamento vem da Área de Inovação Corporativa.","Qual categoria de projeto descreve essa situação?",["Projeto de alta incerteza","Projeto operacional","Projeto estratégico","Investimento pontual"],0,"De onde vem o orçamento?","Orçamento da Área de Inovação Corporativa, aprovado conforme evolução, caracteriza o projeto de alta incerteza.");
+q("s17","sim","ali","m","Uma rede de varejo quer aumentar a satisfação dos clientes e a fidelização. A diretoria precisa classificar o objetivo na estrutura do BSC.","Em qual perspectiva do BSC o objetivo se encaixa?",["Financeira","Interna","Do cliente","Aprendizado e crescimento"],2,"Valor entregue e visão de quem compra.","Satisfação e fidelização são a visão do cliente: perspectiva do cliente.");
+q("s18","sim","ali","m","Durante a construção do painel, a área percebe que a meta de crescimento de 30% é inviável com a capacidade atual, e que o projeto previsto também parece insuficiente.","O que o fluxo bottom-up permite fazer nessa situação?",["Impor a meta de 30% à área","Ajustar a estratégia e as definições de metas e projetos","Eliminar o painel de contribuição","Ignorar a viabilidade e seguir o plano"],1,"Bottom-up = de baixo para cima.","No bottom-up, os painéis revelam metas inviáveis ou tímidas e projetos insuficientes, e a estratégia é ajustada.");
+q("s19","sim","met","m","Um gerente propõe a meta: 'Aumentar significativamente a satisfação dos clientes até dezembro'.","Quais critérios SMART essa meta não atende?",["Apenas T (prazo)","Apenas A (viável)","Apenas R (relevante)","S e M (específica e mensurável)"],3,"Tem prazo? Tem número?","Tem prazo (dezembro), mas 'significativamente' não é específico nem mensurável: falha em S e M.");
+q("s20","sim","met","m","Em agosto, um indicador de vendas ultrapassa o limite superior de ação definido no planejamento.","Qual pergunta deve orientar a análise?",["Por que superamos a meta? Qual a causa?","Quem perdeu o prazo?","Qual o orçamento disponível?","Quem deve ser substituído?"],0,"Decide-se pela causa do desvio.","Acima do limite superior: por que superamos? Qual a causa? Vamos manter a meta?");
+q("s21","sim","ind","d","Um hospital mede o índice de queda de pacientes pela fórmula (Número de quedas / número de pacientes-dia) x 100. No trimestre, ocorreram 3 quedas em um total de 500 pacientes-dia.","Qual é o valor do indicador no trimestre?",["0,3%","1,5%","0,6%","6%"],2,"3 ÷ 500, depois × 100.","3 ÷ 500 = 0,006; × 100 = 0,6%.");
+q("s22","sim","met","d","A meta global de uma empresa é reduzir o tempo médio de fila para 30 minutos. A Diretoria A recebe a contribuição de reduzir a fila em 40% na sua área, e cada gerente de unidade recebe a meta de reduzir a fila em 10% na sua unidade.","Qual é a sequência correta de desdobramento, do topo para a base?",["Indivíduos → áreas → corpo diretivo","Corpo diretivo → áreas → indivíduos","Áreas → fornecedores → indivíduos","Corpo diretivo → fornecedores → áreas"],1,"Fornecedores não fazem parte do desdobramento.","Desdobramento: corpo diretivo (global) → áreas (diretorias) → indivíduos.");
+q("s23","sim","pro","d","A planilha de priorização usa os pesos: Alinhamento estratégico 0,4; Complexidade 0,05; Prazo 0,1; Impacto na vida do cidadão 0,2; Status 0,15; Valor 0,1. Um projeto recebeu as notas: Alinhamento 2, Complexidade 1, Prazo 3, Impacto 3, Status 4 e Valor 2.","Qual é o total desse projeto?",["2,55","2,45","2,65","2,75"],0,"Multiplique cada nota pelo peso e some.","0,8 + 0,05 + 0,3 + 0,6 + 0,6 + 0,2 = 2,55.");
+q("s24","sim","esc","d","Uma equipe de um escritório de estratégia identifica exceções no andamento de iniciativas, detecta atrasos, sugere melhorias nas iniciativas e elabora controles, indicadores e templates para o acompanhamento.","Qual papel do escritório de estratégia melhor descreve essas atividades?",["Alinhador","Comunicador","Decisor","Instigador"],3,"Quem 'provoca' melhorias e cria templates?","Detectar exceções, sugerir melhorias e criar controles e templates é o papel de instigador.");
+q("s25","sim","mon","d","Um projeto recebeu as notas CIER: Complexidade 2, Integridade 4, Evolução 4 e Riscos 4.","Qual é a faixa de status do projeto e a ação recomendada?",["Verde: seguir sem intervenção","Amarelo: acompanhar de perto","Laranja: o Comitê Estratégico precisa intervir","Verde: aprovar orçamento adicional"],2,"Some as notas. Quanto maior, pior.","2 + 4 + 4 + 4 = 14, na faixa de 9 a 16: laranja, o Comitê precisa intervir.");
+q("s26","sim","mon","d","Um projeto está dentro do cronograma mensal das RAs, sem desvios. Mesmo assim, após três meses, a Diretoria Executiva questiona se a iniciativa ainda contribui para a estratégia avançar na direção correta.","Qual reunião deve tratar essa questão?",["RAP","RAE","RA","Sala de situação"],1,"'Direção correta' + trimestral.","'Estamos indo na direção correta?' é a pergunta da RAE, trimestral, com a Diretoria Executiva.");
+q("s27","sim","pro","d","Um hospital tem a iniciativa 'Implantação de Linha de Cuidado em Doença Renal Crônica'. Os planos de ação descrevem como realizá-la, e a execução precisa de recursos previstos no orçamento.","Qual elemento sustenta financeiramente a execução da iniciativa?",["Ação orçamentária","Plano de ação","Objetivo estratégico","Meta"],0,"Cadeia: objetivo → meta → iniciativa → plano de ação → ?","Ações orçamentárias sustentam a execução das iniciativas.");
+q("s28","sim","ind","d","Um indicador tem o seguinte cálculo: A / (B + C + D). Os valores do mês são A = 50, B = 100, C = 150 e D = 100.","Qual é o valor do indicador?",["50%","33,3%","28,6%","14,3%"],3,"Some o denominador primeiro.","B + C + D = 350; 50 ÷ 350 ≈ 0,143 = 14,3%.");
+q("s29","sim","mon","d","Durante a execução de um projeto estratégico, um incidente com paralisação de sistema exige decisão em 24 horas, fora do calendário das reuniões previstas.","Qual reunião deve ser convocada?",["RA","RAP","Sala de situação","RAE"],2,"Urgente e fora do calendário.","Assuntos urgentes, fora do calendário, vão para a sala de situação (ad hoc, por convocação).");
+q("s30","sim","esc","d","Uma empresa precisa coordenar a construção conjunta do Mapa Estratégico com as diretorias e entregar o mapa final como produto do escritório de estratégia.","Qual serviço comum do escritório de estratégia e qual produto estão relacionados corretamente?",["Análise dos ambientes → relatório de diagnóstico","Elaboração do mapa estratégico → mapa estratégico","Projetos estratégicos → carteira de projetos","Painéis de contribuição → painéis de cada área"],1,"Todas as duplas existem; qual é a do contexto?","O contexto fala em construir o mapa: serviço 'elaboração do mapa estratégico', produto 'mapa estratégico'. As outras duplas existem, mas não são as do caso.");
+
+/* ---------- Questões novas (correta = primeira; embaralhadas na tela) ---------- */
+function n(id,t,lv,c,p,o,h,e){q(id,"novo",t,lv,c,p,o,0,h,e);}
+
+/* Indicadores */
+n("n01","ind","f","Um governo estadual acompanha o 'Número de homicídios', com meta de reduzir 20% em quatro anos. A responsável é a secretaria de segurança.","Como esse indicador é classificado quanto ao tipo e ao estilo?",["Resultado, menor melhor","Processo, menor melhor","Resultado, maior melhor","Processo, maior melhor"],"Ele mede uma atividade ou o efeito final? E o desejado é subir ou cair?","Número de homicídios quantifica o resultado alcançado (eficácia). Como a meta é reduzir, o estilo é menor melhor.");
+n("n02","ind","f","A PRF acompanha a 'Quantidade de operações policiais especiais realizadas', com metas de 400 em 2015 até 440 em 2019.","Qual é a classificação desse indicador?",["Processo, maior melhor","Resultado, maior melhor","Processo, menor melhor","Resultado, menor melhor"],"Contar operações realizadas mede a atividade ou o efeito dela?","Contar operações mede o desempenho da atividade (eficiência), logo é processo. Metas crescentes indicam maior melhor.");
+n("n03","ind","f","Após o fechamento do semestre, a diretora diz: 'Já sei quanto atingimos. Agora preciso entender como e por que chegamos a esse número'.","Qual papel do indicador ela quer explorar?",["Diagnosticar","Motivar","Comparar","Controlar"],"Um papel responde 'quanto?', o outro responde 'como e por quê?'.","Diagnosticar descobre fatores relevantes e analisa causas (como e por quê). Motivar responde 'quanto atingimos?'.");
+n("n04","ind","m","Uma área criou um índice de desempenho que agrega 25 indicadores. Ninguém sabe explicar o que ele mede nem como interpretá-lo.","Qual premissa de bons indicadores foi violada mais diretamente?",["Simplicidade","Potencial de comparação","Viabilidade","Periodicidade"],"O problema é que ninguém entende o índice.","Simplicidade: o indicador deve ser fácil de entender, coletar e analisar. O material cita justamente o índice com muitos indicadores sem clareza de propósito.");
+n("n05","ind","m","Uma autarquia escolheu um indicador cujo dado só é divulgado 18 meses após o período medido, quando as decisões do ano já foram tomadas.","Qual premissa de bons indicadores não foi atendida?",["Viabilidade","Simplicidade","Poucos e bons","Potencial de comparação"],"O dado existe, mas chega a tempo de decidir?","Viabilidade exige dados disponíveis em período que permita acompanhar e decidir.");
+n("n06","ind","m","Uma equipe já partiu do objetivo estratégico e identificou o melhor indicador para medi-lo.","Qual é o próximo passo na construção do indicador?",["Verificar se ele é usado em outras organizações","Verificar a viabilidade da medição","Preencher os demais campos da ficha","Definir a meta viável"],"Passos: objetivo → melhor indicador → ? → viabilidade → ficha.","Terceiro passo: verificar se o indicador é usado em outras organizações, aproveitando referências. Depois vêm viabilidade e ficha.");
+n("n07","ind","m","Ao verificar a viabilidade, a equipe descobre que não consegue medir o indicador escolhido com os sistemas atuais.","O que o roteiro de construção recomenda?",["Adaptar o indicador e construir um plano de mensuração","Descartar o objetivo estratégico","Manter o indicador sem dados até o ano seguinte","Trocar o objetivo por um mais fácil de medir"],"O passo 4 não termina em desistência.","Se a medição não for viável, adapta-se o indicador e constrói-se um plano de mensuração.");
+n("n08","ind","f","Um analista preenche a ficha do indicador e precisa registrar a fórmula, as fontes dos termos, a unidade e a periodicidade de consolidação.","Em qual bloco da ficha ficam essas informações?",["Coleta","Dados gerais","Responsável","Metas"],"São informações sobre como o número é obtido.","O bloco Coleta reúne fórmula, termos e fontes, fonte dos dados, unidade, forma de coleta e periodicidade.");
+n("n09","ind","m","Na ficha do 'Índice de queda de pacientes', aparecem: Atenção à Saúde · Resultado · Estratégico.","A que campos correspondem esses três valores, nessa ordem?",["Eixo, tipo e nível","Tipo, estilo e nível","Eixo, estilo e tipo","Nível, tipo e eixo"],"Estratégico/tático/operacional é um campo; processo/resultado é outro.","Atenção à Saúde é o eixo (tema), Resultado é o tipo e Estratégico é o nível.");
+n("n10","ind","m","Um centro de pesquisa tem o objetivo 'Produzir conhecimento científico'. A equipe formula: 'O P&D está produzindo conhecimento relevante?' e decide medir a quantidade de publicações.","Na lógica de uso de indicadores, a frase entre aspas é um(a):",["Questão relevante","Objetivo estratégico","Indicador","Meta"],"Sequência: objetivo → ? → indicador → análise.","A pergunta que avalia o atingimento do objetivo é a questão relevante. 'Produtividade acadêmica' (publicações) seria o indicador.");
+n("n11","ind","d","Representatividade das horas extras: Indicador = A / (B + C + D). No mês: A (horas extras) = 20.000; B (força de trabalho) = 120.000; C (matéria-prima) = 60.000; D (custos indiretos) = 20.000.","Qual o valor do indicador?",["10%","11,1%","16,7%","25%"],"Some B + C + D antes de dividir.","B + C + D = 200.000; 20.000 ÷ 200.000 = 10%. As outras opções vêm de esquecer um termo do denominador.");
+n("n12","ind","d","Um hospital teve 4 quedas de pacientes em 800 pacientes-dia no trimestre. Fórmula: (quedas / pacientes-dia) × 100.","Qual o valor do indicador e qual o estilo dele?",["0,5%, menor melhor","0,5%, maior melhor","5%, menor melhor","2%, menor melhor"],"Faça 4 ÷ 800 × 100. E queda é algo que se quer reduzir.","4 ÷ 800 = 0,005; × 100 = 0,5%. Como se quer menos quedas, o estilo é menor melhor.");
+
+/* Metas */
+n("n13","met","f","Um diretor apresenta como meta da área: 'Melhorar o atendimento ao cidadão'.","Qual é o principal problema dessa formulação como meta?",["Não tem valor quantitativo nem prazo, então é um objetivo e não uma meta","Não tem responsável definido na matriz","Usa benchmarking sem autorização","É uma meta parcial, não final"],"Meta é um patamar quantitativo.","Meta é o valor quantitativo a ser atingido em um horizonte de tempo. 'Melhorar o atendimento' é uma aspiração, ou seja, um objetivo.");
+n("n14","met","f","O Ministério da Saúde fixou a meta nacional de cobertura vacinal, e a secretaria estadual adotou como sua meta a parcela que lhe cabe.","Qual método de definição de metas foi usado pela secretaria?",["Diretrizes","Benchmarking","Série histórica","Matriz PEST"],"A meta veio de uma instância superior.","Quando a meta é um desdobramento das definições de instâncias superiores, o método é diretrizes.");
+n("n15","met","f","Uma empresa analisa a evolução do seu índice de satisfação nos últimos cinco anos para propor a meta do próximo ciclo.","Qual método está sendo usado?",["Série histórica","Benchmarking","Diretrizes","Desdobramento"],"Olha para o passado da própria organização.","Analisar a dinâmica passada do próprio desempenho é série histórica.");
+n("n16","met","m","Meta proposta: 'Reduzir em 5% o consumo de papel até junho de 2027'. É clara, mensurável, possível e tem prazo, mas a redução de papel não tem relação com nenhum objetivo do mapa estratégico.","Qual critério SMART não é atendido?",["R (relevante)","A (viável)","S (específica)","T (prazo)"],"Qual letra trata do alinhamento com a estratégia?","R (relevante) exige metas alinhadas com a estratégia e relevantes para o negócio.");
+n("n17","met","m","Uma startup sem novos investimentos define a meta de crescer 300% em três meses. A equipe sabe que não há capacidade para isso.","Qual critério SMART está sendo violado?",["A (viável)","R (relevante)","M (mensurável)","T (prazo)"],"Desafiadora, porém realista.","A (achievable, viável): metas desafiadoras, porém realistas e possíveis. Sem capacidade, a meta não é viável.");
+n("n18","met","m","Cada área já definiu suas metas individualmente. Agora o comitê olha todas juntas para verificar se, somadas, cabem na capacidade da organização.","Qual passo da construção de metas é esse?",["Avaliar a viabilidade do conjunto de metas","Definir metas parciais","Analisar diretrizes, série histórica e benchmarking","Partir do objetivo e de seus indicadores"],"É o último passo, feito de forma conjunta.","O quinto passo é avaliar a viabilidade do conjunto de metas, olhando o total da organização.");
+n("n19","met","m","Na análise de atingimento, cada limite de ação traz uma pergunta de decisão sobre a meta.","Qual associação está correta?",["Limite superior: vamos mantê-la? · Limite inferior: vamos eliminá-la?","Limite superior: vamos eliminá-la? · Limite inferior: vamos mantê-la?","Os dois limites: vamos aumentar o prazo?","Limite superior: quem ganha bônus? · Limite inferior: quem é responsável?"],"Superou a meta: ela continua fazendo sentido?","Acima do limite superior pergunta-se se a meta será mantida. Abaixo do inferior, se será eliminada. Em ambos, investiga-se a causa.");
+n("n20","met","d","Um indicador ficou muito abaixo do limite inferior por causa de uma greve nacional de transportes no trimestre.","Segundo o material, o que a análise deve considerar antes de decidir sobre a meta?",["Aspectos conjunturais e estruturais da causa do desvio","Apenas o valor numérico do desvio","Somente a opinião do responsável pelo indicador","A troca imediata do indicador por outro"],"Uma greve é algo passageiro ou permanente?","A análise deve considerar aspectos conjunturais (como uma greve) e estruturais, para tomar a medida adequada. Decide-se pela causa, não só pelo número.");
+n("n21","met","f","Na matriz de responsabilidade, o indicador 'tempo médio de compras' tem a letra R marcada para a Diretoria de Logística e também para a Diretoria Financeira.","O que isso indica?",["Responsabilidade compartilhada pelo indicador","Erro de preenchimento, pois só pode haver um R","Que o indicador é de processo","Que a meta é parcial"],"O material prevê mais de uma área respondendo.","Quando mais de uma área responde pelo indicador, a responsabilidade é compartilhada.");
+n("n22","met","m","Uma rede de hospitais acompanha o 'tempo de fila médio para atendimento em emergência, por nível de risco', que reflete o resultado global da organização.","Em qual nível do desdobramento de metas esse indicador está?",["Corpo diretivo","Áreas","Indivíduos","Processos"],"Resultado global da organização.","Indicadores que refletem os resultados globais ficam no corpo diretivo. '% de hospitais com monitoramento de fila' seria do nível áreas.");
+n("n23","met","d","No exemplo de BSC do material, a linha financeira traz: objetivo 'Crescimento financeiro', indicador 'Receita com novos produtos', 30% e 'Projeto de estruturação de controle de gastos'.","Qual é a ordem lógica das colunas dessa tabela?",["Perspectiva → mapa estratégico → indicador → meta → projeto","Perspectiva → projeto → meta → indicador → mapa","Mapa → meta → perspectiva → projeto → indicador","Indicador → perspectiva → projeto → meta → mapa"],"Da estratégia ao projeto.","A tabela vai da estratégia ao projeto: perspectiva, objetivo do mapa, indicador, meta e projeto.");
+
+/* Projetos */
+n("n24","pro","f","Um gestor descreve um projeto estratégico em uma reunião.","Qual definição está de acordo com o material?",["Esforço temporal, com início, meio e fim, que viabiliza o atingimento das metas","Atividade contínua da rotina operacional da área","Indicador que mede a eficiência dos processos","Documento que define missão, visão e valores"],"Projeto tem começo e fim.","Projeto estratégico é um esforço temporal (início, meio e fim) cuja função é viabilizar as metas.");
+n("n25","pro","m","Um projeto está ligado ao painel de contribuição da Diretoria Comercial, tem menor impacto, é acompanhado nas reuniões de gestão da própria área e usa o orçamento da diretoria.","Qual é a categoria desse projeto?",["Projeto operacional","Projeto estratégico","Projeto de alta incerteza","Investimento pontual"],"Ligado ao painel da diretoria, não ao mapa.","Projeto operacional: ligado ao painel de contribuição, menor impacto, governança da própria área e orçamento da diretoria. Investimento pontual é tipo, não categoria.");
+n("n26","pro","m","Um projeto está ligado diretamente a dois objetivos do Mapa Estratégico e tem grande impacto.","Como deve ser a governança e o orçamento desse projeto, segundo o material?",["Governança corporativa com acompanhamento do Escritório de Estratégia; orçamento próprio, idealmente","Governança da própria área; orçamento da diretoria","Metodologia específica; orçamento da Área de Inovação","Sem governança formal; orçamento definido no fim do ano"],"Projeto estratégico tem o acompanhamento mais alto.","Projeto estratégico: governança corporativa, acompanhado pelo Escritório de Estratégia, com orçamento próprio idealmente.");
+n("n27","pro","f","Uma prefeitura redesenha o processo de compras que já existe, reduzindo de 14 para 8 etapas para ter um resultado superior ao modelo anterior.","Que tipo de projeto é esse?",["Transformação de processos","Implantação de novos processos","Investimento pontual","Projeto de alta incerteza"],"O processo já existia.","Modificar um conjunto de atividades existente para ter resultado superior é transformação de processos.");
+n("n28","pro","f","Uma biblioteca compra cinco scanners novos para acelerar a digitalização, sem mudar o fluxo de trabalho.","Que tipo de projeto é esse?",["Investimento pontual","Transformação de processos","Implantação de novos processos","Projeto operacional"],"Melhoria localizada, sem redesenho.","Melhorias pontuais que incrementam ganhos nos processos são investimento pontual.");
+n("n29","pro","m","Na construção do inventário de projetos, a equipe decide juntar dois projetos parecidos e eliminar um terceiro que perdeu sentido.","Em qual etapa do inventário isso acontece?",["Ajuste do portfólio","Análise da base","Análise de viabilidade","Detalhamento dos projetos"],"Etapa 2: novos, ajustar, juntar ou eliminar.","No ajuste do portfólio identificam-se novos projetos, ajustam-se os atuais e juntam-se ou eliminam-se projetos.");
+n("n30","pro","m","Depois de aplicar a AHP, um diretor quer usar o ranking como a decisão final, sem levar à alta direção.","Qual afirmação sobre a AHP está correta?",["O ranking apoia a decisão da alta direção, mas não a substitui","O ranking é a decisão final e dispensa discussão","A AHP elimina totalmente a subjetividade","Projetos fora do ranking devem ser encerrados"],"A AHP reduz e organiza a subjetividade.","A AHP reduz e organiza a subjetividade, e o ranking é ferramenta de apoio à decisão da alta direção. Projetos não priorizados continuam existindo.");
+n("n31","pro","f","Um projeto não entrou na lista de estratégicos após a priorização.","O que acontece com ele?",["Continua existindo, mas sem prioridade de recursos e acompanhamento da alta gestão","É cancelado automaticamente","Vira projeto de alta incerteza","Passa a ser acompanhado na RAE"],"Não ser estratégico não significa acabar.","Projetos não listados como estratégicos continuam existindo; só não são priorizados para recursos e acompanhamento com a alta gestão.");
+n("n32","pro","d","Na escala de complexidade de implantação, um subcritério avalia se a execução é feita pela força de trabalho da organização ou por fornecedor. O projeto depende inteiramente de um fornecedor externo.","Que nota esse subcritério recebe?",["0","1","3","0,3"],"Na complexidade, 3 é 'própria da organização'.","Escala de complexidade: 0 depende de fornecedor ou órgão externo, 1 parcial, 3 própria da organização. Logo, nota 0. O 0,3 é o peso, não a nota.");
+n("n33","pro","d","Um projeto recebeu: Impacto (três subcritérios, peso 1 cada) notas 3, 1 e 3; Transversalidade (peso 0,5) nota 3; Complexidade (três subcritérios, peso 0,3 cada) notas 3, 1 e 0.","Aplicando os pesos, qual a pontuação total?",["9,7","10,2","8,5","11,0"],"Impacto 7; transversalidade 3 × 0,5; complexidade 4 × 0,3.","Impacto 3 + 1 + 3 = 7; transversalidade 3 × 0,5 = 1,5; complexidade (3 + 1 + 0) × 0,3 = 1,2. Total 9,7.");
+n("n34","pro","m","Um projeto envolve, de forma estrutural, as áreas de TI, Jurídico, Atendimento e Finanças.","Qual critério de priorização capta essa característica?",["Transversalidade","Impacto","Complexidade","Orçamento"],"Multidisciplinaridade.","Transversalidade mede a multidisciplinaridade, envolvendo diversas áreas.");
+n("n35","pro","m","Objetivo: 'aumentar em 30% os leitos para hemodiálise'. A 'Linha de Cuidado em Doença Renal Crônica' declara a transformação que será realizada no serviço público.","No desdobramento orçamentário, a Linha de Cuidado é a:",["Iniciativa","Ação orçamentária","Plano de ação","Meta"],"Cadeia: objetivo → meta → ? → plano de ação → ação orçamentária.","A iniciativa declara as transformações a realizar. Planos de ação dizem como; ações orçamentárias sustentam financeiramente.");
+n("n36","pro","m","Na construção da carteira, a equipe já levantou os projetos existentes e analisou quais manter ou eliminar frente ao Mapa Estratégico.","Qual é o próximo passo?",["Criar novos projetos para preencher lacunas","Formalizar a carteira final","Priorizar conforme a metodologia","Elaborar o mapa estratégico"],"Depois de cortar, o que falta cobrir?","Terceiro passo: criar novos projetos para as lacunas. Depois vêm priorização e formalização.");
+n("n37","pro","f","Uma equipe monta a ficha de detalhamento de um projeto.","Qual item NÃO faz parte do detalhamento de projeto descrito no material?",["Matriz SWOT da área","Responsável pelo projeto","Atores envolvidos","Objetivo do painel de contribuição ao qual está atrelado"],"SWOT é ferramenta de análise do ambiente.","A ficha inclui responsável, atores, ações com datas, início e término e objetivo do painel. SWOT é elemento de análise da estratégia.");
+n("n38","pro","m","Depois do inventário, a organização aplica o filtro de capacidade aos projetos.","Qual atividade NÃO faz parte do filtro de capacidade?",["Definição de missão, visão e valores","Hierarquização dos projetos","Balanceamento de recursos entre os projetos","Distribuição temporal ao longo do horizonte do plano"],"O filtro trata de ordem, recursos e tempo.","O filtro inclui hierarquizar, balancear recursos, distribuir no tempo e definir por onde começar. MVV é anterior, na formulação da estratégia.");
+
+/* Alinhamento */
+n("n39","ali","f","Uma organização lançou o novo plano estratégico, mas as equipes resistem às mudanças porque não sabem o que mudou nem por quê.","Segundo o material, qual é uma das principais causas dessa resistência?",["Desinformação","Excesso de indicadores","Falta de orçamento","Metas parciais mal definidas"],"Ninguém sabe o que mudou.","A desinformação é uma das principais causas de resistência; o alinhamento do mapa estratégico atua contra isso.");
+n("n40","ali","f","Uma consultoria começa o planejamento entrevistando clientes e mapeando as capacidades internas da empresa.","Em qual etapa do planejamento estratégico ela está?",["Análise","Escolha","Desdobramento","Gestão"],"É a primeira etapa.","Análise é o entendimento das necessidades dos clientes e atores e das capacidades da organização.");
+n("n41","ali","m","Uma empresa quer mapear fatores políticos, econômicos, sociais e tecnológicos que afetam seu setor.","Qual elemento da 'tabela periódica' da estratégia é o mais adequado?",["Matriz PEST","Matriz SWOT","Cadeia de valor","Mapa estratégico"],"As iniciais dos fatores formam o nome.","A PEST organiza fatores Políticos, Econômicos, Sociais e Tecnológicos do ambiente.");
+n("n42","ali","f","Uma empresa define o objetivo 'Desenvolver competências digitais e uma cultura de inovação nas equipes'.","Em qual perspectiva do BSC ele se encaixa?",["Aprendizado e crescimento","Do cliente","Financeira","Interna"],"Pessoas, competências, cultura, tecnologia.","Aprendizado e crescimento trata de pessoas, competências, cultura e tecnologia para o futuro.");
+n("n43","ali","m","No mapa estratégico, 'Capacitar equipes' aparece na base e sustenta 'Aumentar a receita' no topo.","Como o material chama a relação entre esses dois tipos de objetivos?",["Objetivos habilitadores tornam possível o atingimento dos objetivos de resultado","Objetivos de resultado tornam possíveis os habilitadores","Os dois são objetivos de contribuição","Não há relação de causa e efeito no mapa"],"Quem sustenta quem?","Na dinâmica do BSC, objetivos habilitadores (base) tornam possível o atingimento dos objetivos de resultado (topo).");
+n("n44","ali","m","Ao montar seu painel, o RH pergunta: 'De que maneira nossa área contribui para garantir as competências para os negócios futuros?'.","Que elemento do painel está sendo definido?",["Objetivos de contribuição","Indicadores","Metas","Projetos"],"É o primeiro elemento do painel.","Objetivos de contribuição respondem de que maneira a área contribui para cada objetivo estratégico.");
+n("n45","ali","d","Ao debater o painel, a área analisa cada objetivo estratégico do mapa e propõe um objetivo de contribuição.","Que duas reflexões o material recomenda nessa etapa?",["Se é de fato um objetivo e se é de competência da área","Se tem orçamento próprio e se é transversal","Se é processo ou resultado e se é maior ou menor melhor","Se cabe na RAE e se tem score CIER verde"],"Passo 1 da elaboração do painel.","Para cada objetivo de contribuição, reflita se é objetivo e se é de competência da área.");
+n("n46","ali","m","Uma empresa parte do Mapa Estratégico e pede que cada unidade monte seu plano tático alinhado a ele.","Esse movimento corresponde a qual fluxo?",["Top-down","Bottom-up","Benchmarking","Escalonamento"],"Do mapa para os painéis.","Top-down parte do mapa estratégico para os painéis, garantindo que o plano tático de cada unidade esteja alinhado.");
+n("n47","ali","d","Um professor afirma: 'O painel de contribuição é ponto essencial do BSC'.","Por quê, segundo o material?",["Concretiza o primeiro passo entre a estratégia e as ações individuais","Substitui o mapa estratégico","Define o orçamento de cada projeto","Calcula o score CIER das áreas"],"Liga o nível estratégico ao nível de quem executa.","A criação do painel concretiza o primeiro passo entre estratégia e ações individuais.");
+
+/* Monitoramento */
+n("n48","mon","m","Durante a pandemia, uma rede de restaurantes criou um serviço de entrega que nunca esteve no plano. O serviço deu certo e virou parte do negócio.","Esse serviço é um exemplo de estratégia:",["Emergente","Deliberada","Pretendida","Não realizada"],"Surgiu da prática, não do plano.","Estratégias emergentes surgem da prática. A estratégia real soma deliberadas e emergentes.");
+n("n49","mon","m","Uma empresa planejou cinco iniciativas, realizou três como previsto, abandonou duas e criou uma nova não planejada.","O conjunto do que de fato aconteceu (as três realizadas mais a nova) é a estratégia:",["Real","Pretendida","Deliberada","Emergente"],"Deliberadas + emergentes.","Estratégia real = deliberadas (as três) + emergentes (a nova). Pretendida é o plano inicial com as cinco.");
+n("n50","mon","f","Uma organização implanta um sistema de coleta de dados e um painel digital para operacionalizar a gestão estratégica.","Esses elementos são:",["Instrumentos de gestão","Ritos de gestão","Painéis de contribuição","Objetivos habilitadores"],"Ritos são reuniões; e sistemas?","Instrumentos de gestão são sistemas, instrumentos de coleta e formas tangíveis de operacionalizar a gestão. Ritos são a estrutura de governança.");
+n("n51","mon","f","Ao longo do mês, antes da reunião mensal, o Escritório reúne líderes das iniciativas e responsáveis pela execução para perguntar como estão as tarefas de cada projeto.","Que reunião é essa?",["RAP","RA","RAE","Sala de situação"],"P de preliminar.","A RAP (reunião de acompanhamento preliminar) ocorre ao longo do mês, antes da RA, e pergunta como estão as tarefas.");
+n("n52","mon","m","Em uma reunião mensal com datas fixas, patrocinador e líder decidem incluir duas atividades e trocar o responsável de uma frente.","Que reunião é essa?",["RA","RAE","RAP","Sala de situação"],"Mensal, focada em desvios.","A RA é mensal, foca desvios e seus resultados típicos são inclusão de atividades e alteração de responsabilidades.");
+n("n53","mon","m","Um conselheiro quer saber o que é acompanhado em cada reunião.","Na RAE, o que é acompanhado?",["Indicadores estratégicos e status dos projetos e planos de ação","Evolução, escopo e orçamento das tarefas","Somente o orçamento anual","Apenas as tarefas da semana"],"RAE olha a estratégia como um todo.","A RAE acompanha indicadores estratégicos e status de projetos e planos de ação. Evolução, escopo e orçamento das tarefas são da RA.");
+n("n54","mon","f","Um projeto foi avaliado no modelo CIER com: Complexidade 1, Integridade 1, Evolução 2, Riscos 1.","Qual o status do projeto?",["Verde: grandes chances de sucesso","Amarelo: acompanhar de perto","Laranja: Comitê intervém","Não dá para classificar sem orçamento"],"Some as quatro notas.","1 + 1 + 2 + 1 = 5, faixa de 4 a 6: verde, área segura.");
+n("n55","mon","m","Um projeto foi avaliado com: Complexidade 2, Integridade 2, Evolução 2, Riscos 1.","Qual o status e a ação recomendada?",["Amarelo: alguns riscos, acompanhar de perto","Verde: seguir sem intervenção","Laranja: Comitê intervém logo","Laranja: cancelar o projeto"],"Some: fica entre 6 e 9?","2 + 2 + 2 + 1 = 7, faixa amarela: projeto com alguns riscos, acompanhar de perto.");
+n("n56","mon","d","Um projeto é muito robusto, sem decisões em aberto e com poucas fontes de incerteza.","Que nota ele recebe na dimensão Integridade do CIER?",["1","2","4","16"],"No CIER, 1 é sempre a melhor nota.","Integridade alta (robusto, sem decisões em aberto) recebe 1. A nota 4 é para integridade baixa.");
+n("n57","mon","m","No dashboard executivo da RAE, vários projetos aparecem na 'área segura'.","Como esses projetos são tratados?",["Têm grandes chances de sucesso e não são foco da RAE","São prioridade máxima da RAE","Vão para a sala de situação","Precisam de intervenção do Comitê"],"Segura = tudo bem.","Projetos na área segura têm grandes chances de sucesso e não são foco da RAE.");
+n("n58","mon","m","O Escritório prepara o briefing executivo de um projeto para a RAE.","Qual item NÃO faz parte do briefing executivo descrito no material?",["Ranking AHP de todos os projetos da carteira","Avaliação CIER com score e status","KPIs com valor atual","Marcos críticos do ano corrente e dos próximos"],"O briefing é de um projeto só.","O briefing traz perfil, KPIs, avaliação CIER, pontos de restrição com ações corretivas e marcos críticos. O ranking AHP é da priorização da carteira.");
+n("n59","mon","d","Uma organização quer melhorar a qualidade das decisões, gerenciar melhor a execução e responder a imprevistos.","No modelo de 'frutos e raízes', o que sustenta (raízes) esses resultados?",["Disseminação da estratégia e monitoramento das informações","Corte de orçamento e redução de projetos","Aumento do número de indicadores","Substituição das RAs por salas de situação"],"Frutos são resultados; raízes, o que os alimenta.","As raízes são a disseminação da estratégia (planejamento, cultura, ritos, governança) e o monitoramento das informações para decisões contínuas.");
+
+/* Escritório */
+n("n60","esc","m","Uma equipe do escritório consolida informações sobre as iniciativas e as dissemina para os stakeholders envolvidos.","Qual papel do escritório é esse?",["Comunicador","Alinhador","Instigador","Decisor"],"Disseminar informação.","O comunicador consolida informações e as dissemina para os stakeholders.");
+n("n61","esc","m","O escritório consolida as informações levantadas pelos envolvidos, realiza comitês com os responsáveis e dá feedbacks.","Qual papel do escritório é esse?",["Alinhador","Comunicador","Instigador","Decisor"],"Comitês e feedback.","O alinhador consolida informações dos envolvidos, realiza comitês com responsáveis e dá feedbacks.");
+n("n62","esc","f","O escritório participa da escolha da metodologia de gestão de projetos e dos padrões que todas as áreas devem seguir.","Qual papel do escritório é esse?",["Decisor","Instigador","Alinhador","Comunicador"],"Metodologias e padrões.","O decisor participa de decisões sobre a operação da gestão estratégica, como metodologias e padrões.");
+n("n63","esc","m","O escritório coordena a coleta de informações e entrega um relatório com o diagnóstico interno e externo da organização.","Qual serviço comum do escritório gera esse produto?",["Análise dos ambientes","Elaboração do mapa estratégico","Monitoramento, atualização e reporte","Painéis de contribuição"],"Diagnóstico interno e externo.","O serviço de análise dos ambientes gera o relatório de diagnóstico interno e externo.");
+n("n64","esc","d","O escritório coleta indicadores, gere o painel de gestão e propõe modificações quando necessário.","Essa é a responsabilidade associada a qual serviço?",["Definição de indicadores e metas","Projetos estratégicos","Painéis de contribuição","Análise dos ambientes"],"O produto é o 'painel de gestão com indicadores e metas'.","No serviço 'definição de indicadores e metas', o produto é o painel de gestão, e o escritório coleta indicadores, gere o painel e propõe modificações.");
+
+/* ---------- Estado ---------- */
+var STORE_KEY = "pe-quiz-wrong-v1";
+function loadWrong(){try{var r=localStorage.getItem(STORE_KEY);return r?JSON.parse(r):[];}catch(e){return [];}}
+function saveWrong(a){try{localStorage.setItem(STORE_KEY,JSON.stringify(a));}catch(e){}}
+var wrongSaved = loadWrong();
+
+var cfg = {banks:{novo:true,sim:true}, topics:{}, levels:{f:true,m:true,d:true}, qty:20};
+Object.keys(TOPICS).forEach(function(k){cfg.topics[k]=true;});
+var QTYS = [10,20,40,"Todas"];
+
+var S = null; // sessão
+
+function $(id){return document.getElementById(id);}
+function el(tag,attrs,text){var e=document.createElement(tag);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e;}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+function chip(label,on,fn){var b=el("button",{"class":"chip","type":"button","aria-pressed":on?"true":"false"},label);b.addEventListener("click",fn);return b;}
+
+function filtered(){
+  return Q.filter(function(x){return cfg.banks[x.b]&&cfg.topics[x.t]&&cfg.levels[x.n];});
+}
+function renderSetup(){
+  var bc=$("bank-chips");bc.innerHTML="";
+  Object.keys(BANKS).forEach(function(k){
+    var cnt=Q.filter(function(x){return x.b===k;}).length;
+    bc.appendChild(chip(BANKS[k]+" ("+cnt+")",cfg.banks[k],function(){cfg.banks[k]=!cfg.banks[k];renderSetup();}));
+  });
+  var tc=$("topic-chips");tc.innerHTML="";
+  Object.keys(TOPICS).forEach(function(k){
+    tc.appendChild(chip(TOPICS[k].name,cfg.topics[k],function(){cfg.topics[k]=!cfg.topics[k];renderSetup();}));
+  });
+  var lc=$("level-chips");lc.innerHTML="";
+  Object.keys(LEVELS).forEach(function(k){
+    lc.appendChild(chip(LEVELS[k],cfg.levels[k],function(){cfg.levels[k]=!cfg.levels[k];renderSetup();}));
+  });
+  var qc=$("qty-chips");qc.innerHTML="";
+  QTYS.forEach(function(v){
+    qc.appendChild(chip(String(v),cfg.qty===v,function(){cfg.qty=v;renderSetup();}));
+  });
+  var n=filtered().length;
+  $("avail").textContent=n;
+  $("btn-start").disabled=n===0;
+  var valid=wrongSaved.filter(function(id){return Q.some(function(x){return x.id===id;});});
+  $("saved-n").textContent=valid.length;
+  $("btn-retry-saved").hidden=valid.length===0;
+}
+
+function startWith(list){
+  S={items:list.map(function(x){return {q:x,order:shuffle([0,1,2,3]),picked:null,hint:false};}),i:0,score:0};
+  $("setup").hidden=true;$("result").hidden=true;$("play").hidden=false;
+  renderQ();
+  window.scrollTo({top:0});
+}
+function startFromCfg(){
+  var pool=shuffle(filtered());
+  var n=cfg.qty==="Todas"?pool.length:Math.min(cfg.qty,pool.length);
+  startWith(pool.slice(0,n));
+}
+
+function renderQ(){
+  var it=S.items[S.i], x=it.q;
+  $("q-pos").textContent=S.i+1;
+  $("q-total").textContent=S.items.length;
+  $("q-score").textContent=S.score;
+  $("q-bar").style.width=(S.i/S.items.length*100)+"%";
+  var tags=$("q-tags");tags.innerHTML="";
+  tags.appendChild(el("span",{"class":"tag"},TOPICS[x.t].name));
+  tags.appendChild(el("span",{"class":"tag lv-"+x.n},LEVELS[x.n]));
+  tags.appendChild(el("span",{"class":"tag"},x.b==="sim"?"Simulado":"Nova"));
+  $("q-ctx-text").textContent=x.c;
+  $("q-text").textContent=x.p;
+  var box=$("q-opts");box.innerHTML="";
+  it.order.forEach(function(oi,pos){
+    var b=el("button",{"class":"opt","type":"button","data-oi":String(oi)});
+    b.appendChild(el("span",{"class":"k"},"ABCD"[pos]));
+    b.appendChild(el("span",null,x.o[oi]));
+    b.addEventListener("click",function(){answer(oi);});
+    box.appendChild(b);
+  });
+  $("q-hint-text").textContent=x.h;
+  $("q-hint").hidden=!it.hint;
+  $("btn-hint").disabled=it.hint;
+  $("q-fb").hidden=true;
+  $("btn-next").disabled=true;
+  $("btn-next").textContent=S.i===S.items.length-1?"Ver resultado":"Próxima";
+  if(it.picked!==null)showFeedback();
+}
+function answer(oi){
+  var it=S.items[S.i];
+  if(it.picked!==null)return;
+  it.picked=oi;
+  if(oi===it.q.a)S.score++;
+  showFeedback();
+}
+function showFeedback(){
+  var it=S.items[S.i],x=it.q,ok=it.picked===x.a;
+  Array.prototype.forEach.call($("q-opts").children,function(b){
+    var oi=+b.getAttribute("data-oi");
+    b.disabled=true;
+    if(oi===x.a)b.classList.add("right");
+    else if(oi===it.picked)b.classList.add("wrong");
+  });
+  var fb=$("q-fb");
+  fb.className="fb "+(ok?"ok":"no");
+  $("q-verdict").textContent=ok?"Correto":"Incorreto. Resposta: "+x.o[x.a];
+  $("q-expl").textContent=x.e;
+  var lk=$("q-link");lk.textContent=TOPICS[x.t].name;lk.setAttribute("data-go",TOPICS[x.t].sec);
+  fb.hidden=false;
+  $("q-score").textContent=S.score;
+  $("btn-next").disabled=false;
+  $("btn-hint").disabled=true;
+  $("btn-next").focus({preventScroll:true});
+}
+function next(){
+  if(!S)return;
+  var it=S.items[S.i];
+  if(it.picked===null)return;
+  if(S.i<S.items.length-1){S.i++;renderQ();var p=$("play");if(p.getBoundingClientRect().top<0)p.scrollIntoView();}
+  else finish();
+}
+function finish(){
+  var answered=S.items.filter(function(it){return it.picked!==null;});
+  // atualiza lista de erradas salvas
+  var set={};wrongSaved.forEach(function(id){set[id]=true;});
+  answered.forEach(function(it){if(it.picked===it.q.a)delete set[it.q.id];else set[it.q.id]=true;});
+  wrongSaved=Object.keys(set);saveWrong(wrongSaved);
+
+  $("play").hidden=true;$("result").hidden=false;
+  var tot=answered.length, sc=answered.filter(function(it){return it.picked===it.q.a;}).length;
+  var pct=tot?Math.round(sc/tot*100):0;
+  $("r-pct").textContent=pct+"%";
+  $("r-raw").textContent=sc+" de "+tot+" respondidas"+(tot<S.items.length?" (encerrado antes do fim)":"");
+  $("r-msg").textContent=pct>=85?"Ótimo nível. Revise só as pegadinhas e os erros abaixo.":pct>=65?"Bom caminho. Foque nos assuntos com barra mais curta.":"Vale reler o resumo dos assuntos com menos acertos e refazer as erradas.";
+  var bars=$("r-bars");bars.innerHTML="";
+  Object.keys(TOPICS).forEach(function(k){
+    var its=answered.filter(function(it){return it.q.t===k;});
+    if(!its.length)return;
+    var c=its.filter(function(it){return it.picked===it.q.a;}).length,p=c/its.length;
+    var row=el("div",{"class":"bar"});
+    row.appendChild(el("span",null,TOPICS[k].name));
+    row.appendChild(el("span",{"class":"n"},c+"/"+its.length));
+    var tr=el("div",{"class":"track"}),i=el("i");
+    i.style.width=(p*100)+"%";i.style.background=p>=.8?"var(--good)":p>=.6?"var(--warn)":"var(--bad)";
+    tr.appendChild(i);row.appendChild(tr);bars.appendChild(row);
+  });
+  var errs=answered.filter(function(it){return it.picked!==it.q.a;});
+  var list=$("r-errs");list.innerHTML="";
+  $("r-errs-panel").hidden=errs.length===0;
+  $("btn-redo-wrong").hidden=errs.length===0;
+  errs.forEach(function(it){
+    var d=el("div",{"class":"err"});
+    d.appendChild(el("span",{"class":"eyebrow"},TOPICS[it.q.t].name+" · "+LEVELS[it.q.n]));
+    d.appendChild(el("b",null,it.q.p));
+    d.appendChild(el("span",{"class":"small"},it.q.c));
+    d.appendChild(el("span",{"class":"yours"},"Sua resposta: "+it.q.o[it.picked]));
+    d.appendChild(el("span",{"class":"ans"},"Correta: "+it.q.o[it.q.a]));
+    d.appendChild(el("span",null,it.q.e));
+    list.appendChild(d);
+  });
+  S.lastErrs=errs.map(function(it){return it.q;});
+  window.scrollTo({top:0});
+}
+function showSetup(){S=null;$("play").hidden=true;$("result").hidden=true;$("setup").hidden=false;renderSetup();}
+
+$("btn-start").addEventListener("click",startFromCfg);
+$("btn-retry-saved").addEventListener("click",function(){
+  var l=Q.filter(function(x){return wrongSaved.indexOf(x.id)>=0;});
+  if(l.length)startWith(shuffle(l));
+});
+$("btn-hint").addEventListener("click",function(){if(!S)return;S.items[S.i].hint=true;$("q-hint").hidden=false;$("btn-hint").disabled=true;});
+$("btn-next").addEventListener("click",next);
+$("btn-quit").addEventListener("click",function(){if(!S)return;if(S.items.some(function(it){return it.picked!==null;}))finish();else showSetup();});
+$("btn-new").addEventListener("click",showSetup);
+$("btn-redo-wrong").addEventListener("click",function(){if(S&&S.lastErrs&&S.lastErrs.length)startWith(shuffle(S.lastErrs));});
+
+document.addEventListener("keydown",function(e){
+  if(!S||$("play").hidden||e.metaKey||e.ctrlKey||e.altKey)return;
+  var k=e.key.toLowerCase(),map={"1":0,"2":1,"3":2,"4":3,a:0,b:1,c:2,d:3};
+  var it=S.items[S.i];
+  if(k in map&&it.picked===null){e.preventDefault();answer(it.order[map[k]]);}
+  else if(k==="h"&&it.picked===null){$("btn-hint").click();}
+  else if(k==="enter"&&it.picked!==null&&document.activeElement!==$("btn-next")){e.preventDefault();next();}
+});
+
+/* ---------- Navegação ---------- */
+function route(){
+  var h=(location.hash||"#quiz").slice(1);
+  var res=h==="resumo";
+  $("view-quiz").hidden=res;$("view-resumo").hidden=!res;
+  $("tab-quiz").setAttribute("aria-current",res?"false":"page");
+  $("tab-resumo").setAttribute("aria-current",res?"page":"false");
+  return res;
+}
+function goSection(id){
+  var target=$(id);
+  if(location.hash!=="#resumo"){pendingSec=id;location.hash="resumo";return;}
+  route();
+  if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+var pendingSec=null;
+window.addEventListener("hashchange",function(){
+  route();
+  if(pendingSec){var t=$(pendingSec);pendingSec=null;if(t)setTimeout(function(){t.scrollIntoView({block:"start"});},0);}
+  else window.scrollTo({top:0});
+});
+document.addEventListener("click",function(e){
+  var a=e.target.closest("[data-go]");
+  if(!a)return;
+  e.preventDefault();goSection(a.getAttribute("data-go"));
+});
+route();
+renderSetup();
+})();
+</script>
+
+</body>
+</html>
