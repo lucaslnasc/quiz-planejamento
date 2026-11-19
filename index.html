@@ -127,9 +127,9 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:8px 0}
 
 <div class="wrap">
   <header class="top">
-    <span class="eyebrow">Módulos 3 e 4 · revisão para prova</span>
+    <span class="eyebrow">Módulos 3 e 4 + UAs de plano de negócio · revisão para prova</span>
     <h1>Treino de Planejamento Estratégico</h1>
-    <p>As questões da revisão e do simulado da aula, com dica opcional e explicação de cada resposta. O resumo cobre indicadores, metas, projetos, painéis de contribuição, monitoramento e escritório de estratégia.</p>
+    <p>As questões da revisão, do simulado da aula e das UAs de plano de negócio, com dica opcional e explicação de cada resposta. O resumo cobre indicadores, metas, projetos, painéis de contribuição, monitoramento e escritório de estratégia.</p>
   </header>
   <nav class="tabs" aria-label="Seções">
     <a href="#quiz" id="tab-quiz">Quiz</a>
@@ -188,7 +188,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:8px 0}
             <button id="btn-hint">Ver dica</button>
             <button id="btn-next" class="primary" disabled>Próxima</button>
           </div>
-          <p class="kbd">Teclado: 1–4 ou A–D responde · H mostra a dica · Enter avança</p>
+          <p class="kbd">Teclado: 1–5 ou A–E responde · H mostra a dica · Enter avança</p>
         </article>
       </div>
 
@@ -226,6 +226,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:8px 0}
           <a href="#resumo" data-go="s-ali">Alinhamento e painéis</a>
           <a href="#resumo" data-go="s-mon">Monitoramento e CIER</a>
           <a href="#resumo" data-go="s-esc">Escritório</a>
+          <a href="#resumo" data-go="s-pn">Plano de negócio</a>
           <a href="#resumo" data-go="s-calc">Contas</a>
           <a href="#resumo" data-go="s-trap">Pegadinhas</a>
         </div>
@@ -415,6 +416,37 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:8px 0}
         </article>
         <hr class="sep">
 
+        <article class="sum" id="s-pn">
+          <span class="eyebrow">UAs 1, 2 e 3</span>
+          <h2>Plano de negócio</h2>
+          <ul>
+            <li><b>Definição:</b> documento <b>formal</b> que define indicadores, objetivos e metas de um negócio <b>em concepção ou em funcionamento</b>. Funciona como um <b>mapa estratégico</b> do negócio.</li>
+            <li><b>Benefício principal:</b> reúne informações que <b>subsidiam a tomada de decisões</b>. Metas e objetivos claros também melhoram a <b>comunicação interna</b>.</li>
+            <li><b>Na implementação:</b> acompanhar as mudanças nos ambientes. O <b>interno</b> a empresa controla; o <b>externo</b> ela monitora e mitiga os danos.</li>
+            <li><b>Competências do empreendedor:</b> capacidade analítica, pesquisa e projeção da realidade.</li>
+            <li><b>Ao escrever:</b> objetivo sempre claro, escrita formal com tom empresarial, enfrentar as questões complexas. Consultoria e auditoria <b>não</b> são obrigatórias, e informação falsa nunca é aceitável.</li>
+          </ul>
+          <div class="tbl"><table>
+            <thead><tr><th>Tipo de plano</th><th>Quando usar</th></tr></thead>
+            <tbody>
+              <tr><td>Inicial</td><td>O negócio ainda é uma ideia e precisa sair do papel</td></tr>
+              <tr><td>Crescimento</td><td>Empresa existente e saudável que quer expandir (novas filiais, novos mercados). Primeiro: avaliar a conjuntura, definir o tipo de expansão e analisar a viabilidade</td></tr>
+              <tr><td>Reestruturação</td><td>Empresa existente que precisa mudar ou reformular o negócio</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Parte do plano</th><th>O que traz</th></tr></thead>
+            <tbody>
+              <tr><td>Descrição da empresa</td><td>Segmento, porte, histórico, natureza do negócio, fase do ciclo de vida e registros legais</td></tr>
+              <tr><td>Plano de marketing</td><td>Produto ou serviço, análise de mercado e estratégias de marketing (inclui a promoção). Pode usar SWOT e BCG</td></tr>
+              <tr><td>Plano operacional</td><td>O <b>como fazer</b>: como os processos do negócio vão funcionar</td></tr>
+              <tr><td>Plano financeiro</td><td>A estratégia <b>traduzida em números</b>: balanços, fluxo de caixa e viabilidade financeira</td></tr>
+            </tbody>
+          </table></div>
+          <div class="trap"><span class="eyebrow">Pegadinhas</span>A viabilidade econômica fica no plano <b>financeiro</b>, não na análise de mercado. O plano deve ser <b>realista</b>, não otimista. Ele não serve <b>só</b> para captar investimento. Desconfie de alternativas com “obrigatoriamente”, “limita-se” ou “mesmo que não sejam verdadeiras”.</div>
+        </article>
+        <hr class="sep">
+
         <article class="sum" id="s-calc">
           <span class="eyebrow">Caem na prova</span>
           <h2>Contas que aparecem</h2>
@@ -457,10 +489,14 @@ var TOPICS = {
   pro:{name:"Projetos", sec:"s-pro"},
   ali:{name:"Alinhamento e painéis", sec:"s-ali"},
   mon:{name:"Monitoramento e CIER", sec:"s-mon"},
-  esc:{name:"Escritório", sec:"s-esc"}
+  esc:{name:"Escritório", sec:"s-esc"},
+  ua1:{name:"UA 1 · Plano de negócio", sec:"s-pn"},
+  ua2:{name:"UA 2 · Tipos de plano", sec:"s-pn"},
+  ua3:{name:"UA 3 · Desenvolvimento do plano", sec:"s-pn"}
 };
 var LEVELS = {f:"Fácil", m:"Médio", d:"Difícil"};
-var BANKS = {rev:"Revisão da aula", sim:"Simulado da aula"};
+var BANKS = {rev:"Revisão da aula", sim:"Simulado da aula", ua:"UAs (plano de negócio)"};
+var BANK_TAG = {rev:"Revisão", sim:"Simulado", ua:"UA"};
 
 /* q(id, banco, assunto, nível, contexto, pergunta, alternativas, índice correto, dica, explicação) */
 var Q = [];
@@ -520,15 +556,32 @@ q("r18","rev","ali","m","","Para que serve o fluxo bottom-up na construção dos
 q("r19","rev","mon","m","","Qual reunião é trimestral, conduzida pela Diretoria Executiva e pergunta: 'Estamos indo na direção correta?'",["RAP","RA","RAE","Sala de situação"],2,"E de Estratégia.","A RAE é trimestral e oficial. A RA é mensal ('conforme o esperado?'), a RAP é preliminar e a sala de situação é para urgências.");
 q("r20","rev","mon","d","","Um projeto com score 14 no modelo CIER indica:",["Alta probabilidade de sucesso","Projeto estável, sem necessidade de ação","Orçamento aprovado","Baixa probabilidade de sucesso; o Comitê Estratégico precisa intervir"],3,"No CIER, quanto maior o score, pior.","Score de 9 a 16 é laranja: baixa probabilidade de sucesso, e o Comitê Estratégico precisa intervir.");
 
+/* ---------- UAs: plano de negócio (15) ---------- */
+q("u101","ua","ua1","m","O plano de negócio é uma ferramenta de planejamento para estruturar o lançamento de novos empreendimentos ou para conceber processos de mudança em um negócio existente. Tendo em vista abranger os diferentes aspectos de uma empresa, ele é composto por diferentes partes.","Sobre essas partes, podemos afirmar que:",["As informações sobre a equipe responsável pelo empreendimento são localizadas na parte denominada de plano operacional.","Os indicadores de viabilidade econômica do negócio situam-se na parte denominada análise de mercado.","As estratégias de promoção devem ser descritas na parte denominada plano de marketing.","As atividades de um negócio localizam-se na parte denominada de plano financeiro.","O plano financeiro só pode ser apresentado caso as informações financeiras sejam validadas por um profissional da área contábil."],2,"Promoção é um dos 4 Ps. Em qual plano eles ficam?","Promoção é estratégia de marketing, então fica no plano de marketing. A viabilidade econômica fica no plano financeiro, e as atividades do negócio ficam no plano operacional.");
+q("u102","ua","ua1","m","O planejamento é primordial para qualquer empresa que queira se posicionar no curto, médio e longo prazo. Além disso, o plano de negócios tem inúmeros objetivos.","Dentre esses objetivos, podemos citar:",["O processo de elaboração do plano de negócios é uma oportunidade para pensar o negócio de maneira otimista.","O objetivo do plano de negócios limita-se à captação de investimentos junto aos principais investidores presentes no mercado.","Os aspectos técnicos de um plano de negócios não participam da tomada de decisão em relação ao empreendimento.","O planejamento, ao apoiar a construção de metas e objetivos de uma empresa, atua na melhoria da comunicação interna.","Por meio da análise de mercado, o plano de negócios tem o papel de verificar se um empreendimento é viável ou não."],3,"Desconfie de 'limita-se', de 'otimista' e de quem decide a viabilidade só pelo mercado.","Metas e objetivos claros melhoram a comunicação interna. O plano deve ser realista, não otimista; não serve só para captar investimento; e a viabilidade é demonstrada principalmente no plano financeiro, não só na análise de mercado.");
+q("u103","ua","ua1","m","Sobre a importância estratégica do plano de negócio, sabemos que nele é possível traçar objetivos e metas que orientarão a atuação do empreendimento. Outros aspectos estratégicos também demandam atenção do empreendedor durante a implementação do plano.","Quais são eles?",["As mudanças que ocorrem nos ambientes interno e externo. No interno, geralmente se tem o controle; no externo, se monitora e mitiga os danos.","A contratação de consultoria e auditorias independentes para auxiliar na condução e aferir a acurácia do plano de negócios.","A existência do sumário executivo que contenha informações sobre concorrentes, conjuntura econômica do país e indicadores macroeconômicos.","A existência de análises sobre demanda e oferta dos produtos por meio do plano financeiro.","A existência de um plano de marketing que permita uma análise de mercado coerente."],0,"Pense em ambiente interno x externo, como na SWOT.","Durante a implementação, o empreendedor acompanha as mudanças nos ambientes: o interno ele controla; o externo ele monitora e tenta mitigar os danos. Consultoria e auditoria não são obrigatórias.");
+q("u104","ua","ua1","f","Sobre a definição do plano de negócios, sabe-se que é um documento formal que reúne uma série de dados e informações sobre o negócio, além de estruturar conceitualmente e orientar a prática do dia a dia de um empreendimento.","Assinale a opção que define de modo completo o que é o plano de negócio.",["O plano de negócios é um documento informal, utilizado para adquirir financiamento junto a bancos ou agências de fomento.","O plano de negócio é um estudo realizado pela empresa com objetivo de dimensionar a estrutura patrimonial do negócio.","O plano de negócio é um guia pelo qual a empresa define os processos de trabalho e o fluxo de informações.","O plano de negócio é um estudo realizado pela empresa que visa dimensionar a capacidade produtiva.","O plano de negócio é um documento formal utilizado para definir indicadores, objetivos e metas de um negócio em concepção ou em funcionamento."],4,"O próprio enunciado diz 'documento formal'. Procure a opção mais completa.","Plano de negócio é um documento formal que define indicadores, objetivos e metas, tanto para um negócio novo quanto para um que já funciona. As outras opções descrevem só uma parte (patrimônio, capacidade, processos) ou chamam o documento de informal.");
+q("u105","ua","ua1","m","Segundo Dornelas (2016), a elaboração de um plano de negócio permite ao empreendedor desenvolver um processo de aprendizagem contínua, em que é possível acumular experiências e conhecimentos importantes para a tomada de decisões.","Escolha a opção que descreve os benefícios gerados por um plano de negócio bem feito e estruturado.",["O plano de negócio tem como principal benefício orientar a forma de se comunicar, pois como diz o ditado: quem não comunica, se trumbica.","O plano de negócio fornece uma série de informações que subsidiam a tomada de decisões em um empreendimento.","O plano de negócio possibilita a tomada de decisões subsidiadas por melhores práticas de mercado.","Um plano de negócio bem elaborado possibilita o reconhecimento de associações representativas das empresas do seu setor.","O plano de negócio permite tomar decisões assertivas. Como benefícios cita-se o reconhecimento dos concorrentes."],1,"O enunciado fala em experiências e informações que apoiam decisões.","O principal benefício é reunir informações que dão base às decisões do empreendimento. As outras opções trocam esse benefício por algo secundário (comunicação, concorrentes) ou externo (melhores práticas de mercado, associações).");
+q("u201","ua","ua2","f","Você tem um negócio do ramo alimentício há 10 anos. A empresa vem crescendo e já tem três filiais, todas com resultados positivos. Quando você criou a empresa, não foi elaborado um plano de negócio, e agora surgem oportunidades de instalar novas filiais em outras regiões.","Qual é o tipo de plano de negócio mais adequado para a empresa?",["Plano inicial.","Plano de crescimento.","Plano de estruturação.","Plano de reestruturação.","Plano de inicialização."],1,"A empresa já existe, vai bem e quer expandir.","Empresa já existente, saudável e querendo abrir novas filiais pede um plano de crescimento (expansão). Plano inicial é para quem ainda vai abrir o negócio; reestruturação é para mudar um negócio com problemas.");
+q("u202","ua","ua2","f","Qual meu sonho de negócio? Como posso viabilizar uma empresa? O que espero para o meu empreendimento? Qual imagem e identidade pretendo passar? Quando você tem uma ideia de negócio e precisa colocá-la no papel, precisa de um norte que oriente as melhores opções e estratégias para o futuro negócio.","Qual tipo de plano de negócio se adequa a essa situação?",["Plano de marketing.","Plano de crescimento.","Plano de referência.","Plano de reestruturação.","Plano inicial."],4,"O negócio ainda é só uma ideia.","Quando o negócio ainda não existe e é preciso tirar a ideia do papel, usa-se o plano inicial. Crescimento e reestruturação pressupõem uma empresa já em funcionamento.");
+q("u203","ua","ua2","m","Os objetivos iniciais e futuros de uma empresa, quando bem definidos, levam à definição precisa das atividades, da estrutura e das estratégias, embasadas pela visão da gestão e do mercado.","Quais procedimentos são os mais adequados, sensatos e seguros para empresas que estão planejando um plano de crescimento?",["A avaliação da conjuntura, definição do tipo de expansão e análise de viabilidade.","Pedido de empréstimos e financiamentos.","Compra de insumos, materiais, aluguel de estruturas.","Contratação da equipe e demissões.","Divulgação do negócio, contratação de marketing externo."],0,"Antes de gastar, é preciso analisar.","O caminho seguro é primeiro analisar: avaliar a conjuntura, definir o tipo de expansão e verificar a viabilidade. Empréstimos, compras, contratações e divulgação vêm depois dessa análise.");
+q("u204","ua","ua2","f","Empreendedorismo é um tema muito discutido atualmente. Algumas competências são imprescindíveis ao empreendedor na hora de elaborar o plano de negócios mais adequado à sua empresa.","Quais são essas características?",["Pensar sozinho, ter múltiplas ideias de forma desordenada.","Capacidade analítica, pesquisa e projeção da realidade.","Omitir avaliação de riscos e investimentos do plano.","Abrir mão de um processo de marketing eficaz.","Evitar os riscos e incertezas."],1,"Só uma das opções descreve uma qualidade positiva.","Elaborar um bom plano exige capacidade analítica, pesquisa e projeção da realidade. Omitir riscos, desorganizar ideias ou abrir mão do marketing prejudicam o plano. Evitar todo risco também não é uma característica do empreendedor, que avalia e gerencia riscos.");
+q("u205","ua","ua2","m","De acordo com a literatura, o plano de negócios é um documento elaborado pelo empreendedor que deseja criar, expandir ou reformular seu negócio. Nele, é possível demonstrar a viabilidade do empreendimento sob diversos pontos de vista.","De modo geral, o plano de negócios pode ser comparado a um:",["Mapa estratégico.","Plano de ações operacionais.","Roteiro de ações de marketing.","Plataforma de dados financeiros.","Questionário de viabilidade econômica."],0,"Procure a opção que cobre o negócio inteiro, não só uma parte dele.","O plano de negócios funciona como um mapa estratégico: orienta o negócio como um todo. As outras opções correspondem a apenas uma de suas partes (operacional, marketing, financeiro).");
+q("u301","ua","ua3","m","O plano de negócios pode ser estruturado de diferentes formas e seguir diversos modelos, mas algumas informações são cruciais, como a descrição da empresa.","Considerando as particularidades da empresa que deverão ser apresentadas no plano de negócios, que informações são fundamentais?",["É fundamental que a organização destine uma seção no plano para destacar quanto a empresa paga a cada funcionário. Também deve destacar informações sobre a vida de seus funcionários, buscando transparência.","Ao apresentar a empresa, não se pode negligenciar informações sobre o segmento, porte, breve histórico, natureza do negócio, fase em que está no ciclo de vida e registros legais do negócio.","A empresa pode se preocupar em apresentar apenas as informações genéricas sobre a empresa. Caso o leitor tenha interesse, ele poderá buscar conhecer mais por meio do site e das redes sociais do negócio.","Na descrição da empresa, deverá ser desenvolvido o sumário executivo e o plano financeiro, pois ambos irão destacar as informações mais relevantes sobre o negócio e o produto oferecido.","Ao descrever a empresa, o empreendedor deverá ter em mente aquilo que o leitor gostaria de saber, mesmo que essas informações não sejam verdadeiras. Em caso de questionamento, pode-se explicar que é uma projeção desejada."],1,"Pense no que identifica uma empresa: o que é, de que tamanho, desde quando.","A descrição da empresa traz segmento, porte, histórico, natureza do negócio, fase do ciclo de vida e registros legais. Sumário executivo e plano financeiro são seções separadas, e informação falsa nunca é aceitável.");
+q("u302","ua","ua3","m","A elaboração de um plano de negócios exige levantar as informações necessárias para desenvolver o documento de forma consistente. Desde o início, o plano sinaliza questões essenciais a serem trabalhadas.","Que tipo de necessidades podem ser centrais para o desenvolvimento das etapas do plano de negócios?",["O empreendedor deverá, obrigatoriamente, contratar uma consultoria, pois a sua equipe sozinha não poderá desenvolver o rigor de um bom documento. Caso seja uma empresa iniciante, o plano não é aconselhável.","É necessário que as empresas maiores tenham, entre seus colaboradores, consultores renomados, com experiências em multinacionais; assim, o plano ficará adequadamente alinhado para financiamentos.","A organização deverá passar por uma auditoria semestral antes de desenvolver ou aprimorar seu plano de negócios. Essa é uma exigência formal na maior parte dos países.","Nas etapas de desenvolvimento do plano de negócios, é necessário que o objetivo principal esteja sempre claro e presente. A escrita deve ser formal e buscar um tom empresarial. Deve-se, ainda, buscar respostas para questões complexas.","Anteriormente ao início do desenvolvimento do plano de negócios, é necessário que a organização recalcule os seus dados financeiros, de maneira a não apresentar falhas, mesmo que elas existam."],3,"Desconfie de 'obrigatoriamente', de exigências inventadas e de esconder falhas.","O essencial é manter o objetivo claro, escrever em tom formal e empresarial e enfrentar as questões complexas. Consultoria e auditoria não são obrigatórias, e maquiar números é antiético.");
+q("u303","ua","ua3","m","O plano de marketing pode ser incorporado ao plano de negócios em uma seção sobre o mercado, o produto ou serviço e as estratégias definidas para atender aos objetivos, especialmente quando se busca investidores.","O que não pode faltar no tópico de marketing?",["Ao tratar sobre marketing em um plano de negócios, é necessário considerar o quanto a empresa tem para investir em propaganda. Se for pouco, ela deve projetar interesse apenas em divulgação gratuita.","Nesse tópico, o empreendedor e sua equipe devem descrever campanhas de publicidade e propaganda pensando desde o planejamento até toda a sua execução.","O empreendedor, quando ainda iniciante, deverá pensar em alguém da sua equipe, mesmo sem experiência, para gerir as redes sociais. No plano, ele indicará como isso ocorrerá pelo trabalho do seu colaborador.","A indicação das melhores estratégias de marketing deverá ser feita conforme aquilo que mais agrada o empreendedor como consumidor; assim o plano ficará alinhado com seu gosto pessoal.","A seção destinada às questões de marketing deverá destacar informações sobre produto e serviço, análise de mercado e estratégias de marketing. Tanto a Matriz SWOT quanto a Matriz BCG podem ser utilizadas nesse processo."],4,"Procure as três partes: o que vendo, para quem e como.","A seção de marketing traz produto ou serviço, análise de mercado e estratégias de marketing, e pode usar ferramentas como as matrizes SWOT e BCG. Detalhar campanhas inteiras ou seguir o gosto pessoal do dono não é o foco.");
+q("u304","ua","ua3","f","Embora o plano de negócios deva ser um documento completo sobre o negócio, o mercado, o produto e a viabilidade, é fundamental que haja uma seção indicando como as coisas ocorrem.","O que torna o plano operacional tão fundamental para a execução das ações previstas no plano de negócios?",["O plano operacional é compreendido como aquele que, efetivamente, indicará como serão encaminhados os processos no negócio. Trata do 'como fazer' aquilo que foi indicado no plano maior.","Dentro do plano de negócios, o papel do plano operacional será indicar como serão executadas as ações relacionadas ao plano de marketing, pois elas demandam uma série de estratégias.","É por via do plano operacional que o empreendedor saberá se vale a pena seguir redigindo o plano de negócios, pois ele mostrará as dificuldades que o negócio deve enfrentar.","Ao longo do desenvolvimento do plano de negócios, o plano operacional se mostrará relevante, pois, enquanto ele não for escrito, a operação da empresa estará suspensa.","O plano operacional sustenta o plano de negócios. Em verdade, basta constar no documento o produto oferecido e como ele é produzido, além da forma como será vendido."],0,"Operacional = operação = como fazer.","O plano operacional mostra 'como fazer' o que foi definido no plano maior, ou seja, como os processos do negócio vão funcionar. Ele não se limita ao marketing e não suspende a operação da empresa.");
+q("u305","ua","ua3","m","O plano financeiro está presente tanto no plano de negócios quanto no planejamento estratégico, pois é a etapa em que são apresentadas as informações de viabilidade do negócio.","Como pode ser compreendida a relação entre o plano financeiro e o planejamento estratégico de uma organização?",["O plano financeiro é uma parte do estratégico e está direcionado para sinalizar quanto os funcionários recebem pelo trabalho que desempenham e quais são os gastos mensais com alimentação e deslocamento.","O plano financeiro e o estratégico são equivalentes, embora tenham nomes diferentes. Ambos estão centrados em indicar os gastos mensais que o negócio tem e o capital de giro acumulado.","O plano financeiro pode ser classificado como a tradução do planejamento estratégico da empresa em números. Ele indicará balanços, cálculos, fluxo de caixa e avaliação da viabilidade financeira do negócio.","O plano financeiro não tem relação direta com o planejamento estratégico, podendo esse ser desenvolvido sem considerar aquele. A escolha por incluir fica por conta do empreendedor e da experiência dele.","O planejamento estratégico somente poderá ser desenvolvido após a escrita do plano financeiro, pois caso os recursos da empresa sejam escassos, a operação será mantida apenas naquilo que precisa de entrega imediata."],2,"Financeiro = estratégia em números.","O plano financeiro traduz a estratégia em números: balanços, fluxo de caixa e viabilidade financeira. Ele faz parte do planejamento, não é igual a ele, não é opcional e não vem antes dele.");
+
 /* ---------- Estado ---------- */
 var STORE_KEY = "pe-quiz-wrong-v1";
 function loadWrong(){try{var r=localStorage.getItem(STORE_KEY);return r?JSON.parse(r):[];}catch(e){return [];}}
 function saveWrong(a){try{localStorage.setItem(STORE_KEY,JSON.stringify(a));}catch(e){}}
 var wrongSaved = loadWrong();
 
-var cfg = {banks:{rev:true,sim:true}, topics:{}, levels:{f:true,m:true,d:true}, qty:20};
+var cfg = {banks:{rev:true,sim:true,ua:true}, topics:{}, levels:{f:true,m:true,d:true}, qty:20};
 Object.keys(TOPICS).forEach(function(k){cfg.topics[k]=true;});
-var QTYS = [10,20,30,"Todas"];
+var QTYS = [10,20,40,"Todas"];
 
 var S = null; // sessão
 
@@ -568,7 +621,7 @@ function renderSetup(){
 }
 
 function startWith(list){
-  S={items:list.map(function(x){return {q:x,order:shuffle([0,1,2,3]),picked:null,hint:false};}),i:0,score:0};
+  S={items:list.map(function(x){return {q:x,order:shuffle(x.o.map(function(_,i){return i;})),picked:null,hint:false};}),i:0,score:0};
   $("setup").hidden=true;$("result").hidden=true;$("play").hidden=false;
   renderQ();
   window.scrollTo({top:0});
@@ -588,13 +641,13 @@ function renderQ(){
   var tags=$("q-tags");tags.innerHTML="";
   tags.appendChild(el("span",{"class":"tag"},TOPICS[x.t].name));
   tags.appendChild(el("span",{"class":"tag lv-"+x.n},LEVELS[x.n]));
-  tags.appendChild(el("span",{"class":"tag"},x.b==="sim"?"Simulado":"Revisão"));
+  tags.appendChild(el("span",{"class":"tag"},BANK_TAG[x.b]));
   $("q-ctx-text").textContent=x.c;$("q-ctx").hidden=!x.c;
   $("q-text").textContent=x.p;
   var box=$("q-opts");box.innerHTML="";
   it.order.forEach(function(oi,pos){
     var b=el("button",{"class":"opt","type":"button","data-oi":String(oi)});
-    b.appendChild(el("span",{"class":"k"},"ABCD"[pos]));
+    b.appendChild(el("span",{"class":"k"},"ABCDE"[pos]));
     b.appendChild(el("span",null,x.o[oi]));
     b.addEventListener("click",function(){answer(oi);});
     box.appendChild(b);
@@ -697,9 +750,9 @@ $("btn-redo-wrong").addEventListener("click",function(){if(S&&S.lastErrs&&S.last
 
 document.addEventListener("keydown",function(e){
   if(!S||$("play").hidden||e.metaKey||e.ctrlKey||e.altKey)return;
-  var k=e.key.toLowerCase(),map={"1":0,"2":1,"3":2,"4":3,a:0,b:1,c:2,d:3};
+  var k=e.key.toLowerCase(),map={"1":0,"2":1,"3":2,"4":3,"5":4,a:0,b:1,c:2,d:3,e:4};
   var it=S.items[S.i];
-  if(k in map&&it.picked===null){e.preventDefault();answer(it.order[map[k]]);}
+  if(k in map&&it.picked===null&&map[k]<it.order.length){e.preventDefault();answer(it.order[map[k]]);}
   else if(k==="h"&&it.picked===null){$("btn-hint").click();}
   else if(k==="enter"&&it.picked!==null&&document.activeElement!==$("btn-next")){e.preventDefault();next();}
 });
